@@ -1,5 +1,5 @@
 /**
- * jWalker JavaScript Library v0.2
+ * jWalker JavaScript Library v0.1
  * http://jamesmgreene.github.com/jWalker/
  *
  * Copyright © 2012: James Greene (Team Gunmetal, Inc.)

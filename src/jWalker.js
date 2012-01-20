@@ -1,12 +1,10 @@
 /**
- * jWalker JavaScript Library v1.0.0
- * http://code.google.com/p/jwalker/
+ * jWalker JavaScript Library v0.1
+ * http://jamesmgreene.github.com/jWalker/
  *
- * Copyright (c) 2011: James Greene (d.b.a. Team Gunmetal, Inc.)
+ * Copyright (c) 2012: James Greene (d.b.a. Team Gunmetal, Inc.)
  * Released under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
- *
- * Date: __________
  */
 
 (function (window, undefined)

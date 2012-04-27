@@ -52,9 +52,9 @@ describe('jWalker', function() {
 		});
 	});
 
-	describe("#useAsNativeApis", function() {
+	describe("#createMissingNativeApi", function() {
 		it('should be defined', function() {
-			(typeof(jWalker.useAsNativeApis)).should.equal('function');
+			(typeof(jWalker.createMissingNativeApi)).should.equal('function');
 		});
 		// TODO: More tests
 		it('should have more tests', function() {

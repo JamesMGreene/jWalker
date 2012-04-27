@@ -325,10 +325,10 @@
 			},
 
 			/**
-			 * Use the the jWalker implementations to override the native API members defined by the browser.
-			 * NOT RECOMMENDED!
+			 * Use the jWalker implementations to override the native API members defined by the browser.
+			 * CONSUMER BEWARE!
 			 */
-			useAsNativeApis: function jWalker$useAsNativeApis() {
+			createMissingNativeApi: function jWalker$createMissingNativeApi() {
 				// TODO: Hookup Node, NodeFilter with this.Node, {this.NodeTypeFilter, this.NodeFilter}
 				// TODO: Deal with conversion of piped NodeTypeFilters into jWalker NodeTypeFilters and back into piped NodeTypeFilters
 				// TODO: Hookup createTreeWalker with jWalker.TreeWalker class

@@ -121,21 +121,7 @@
 				"SHOW_DOCUMENT": (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT ? _nodeFilter.SHOW_DOCUMENT : 256),
 				"SHOW_DOCUMENT_TYPE": (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT_TYPE ? _nodeFilter.SHOW_DOCUMENT_TYPE : 512),
 				"SHOW_DOCUMENT_FRAGMENT": (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT_FRAGMENT ? _nodeFilter.SHOW_DOCUMENT_FRAGMENT : 1024),
-				"SHOW_NOTATION": (_isNodeFilterDefined && _nodeFilter.SHOW_NOTATION ? _nodeFilter.SHOW_NOTATION : 2048),
-
-				/**
-				 * ???
-				 */
-				getFromNodeType: function jWalker$NodeTypeFilter$getFromNodeType(nodeType) {
-					if (nodeType && typeof(nodeType) === "number" && nodeType.toString().indexOf(".") === -1) {
-						var name = jWalker$Lang.getEnumName(jWalker.NodeType, nodeType);
-						if (name != null) {
-							var nodeTypeFilterName = "SHOW_" + name.toUpperCase().replace(/_NODE$/g, "");
-							return jWalker.NodeTypeFilter[nodeTypeFilterName];
-						}
-					}
-					return null;
-				}
+				"SHOW_NOTATION": (_isNodeFilterDefined && _nodeFilter.SHOW_NOTATION ? _nodeFilter.SHOW_NOTATION : 2048)
 			},
 
 			/**
@@ -146,14 +132,6 @@
 				"FILTER_ACCEPT": (_isNodeFilterDefined && _nodeFilter.FILTER_ACCEPT ? _nodeFilter.FILTER_ACCEPT : 1),
 				"FILTER_REJECT": (_isNodeFilterDefined && _nodeFilter.FILTER_REJECT ? _nodeFilter.FILTER_REJECT : 2),
 				"FILTER_SKIP": (_isNodeFilterDefined && _nodeFilter.FILTER_SKIP ? _nodeFilter.FILTER_SKIP : 3)
-			},
-
-			/**
-			 * Abstract the check for native TreeWalker support so that we can force the non-native TreeWalker for testing
-			 */
-			isTreeWalkerSupportedNatively: function jWalker$isTreeWalkerSupportedNatively() {
-				// The following object checks are approximately equivalent to, but more reliable than:  document.implementation.hasFeature("Traversal", "2.0")
-				return (document.createTreeWalker && typeof(NodeFilter) !== _undefinedType);
 			},
 
 			/**
@@ -182,27 +160,44 @@
 				// Validate the arguments!
 				if (typeof(Node) !== _undefinedType) {
 					if (!(root instanceof Node)) {
-						throw "ArgumentException: root is not a valid Node object";
+						throw new TypeError("root is not a valid Node object");
 					}
 				}
 				else if (!root.nodeType) {
-					throw "ArgumentException: root is not a valid Node object";
+					throw new TypeError("root is not a valid Node object");
 				}
 
 				if (!jWalker$Lang.isArray(whatToShow)) {
-					throw "ArgumentException: Invalid array provided as value for whatToShow";
+					throw new TypeError("Invalid array provided as value for whatToShow");
 				}
 				else if (whatToShow.length <= 0) {
-					throw "ArgumentException: Empty array provided as value for whatToShow";
+					throw new TypeError("Empty array provided as value for whatToShow");
 				}
 				// Verify all the values are valid
 				for (filterCount = 0, len = whatToShow.length; filterCount < len; filterCount++) {
 					valueToVerify = whatToShow[filterCount];
-					if (jWalker$Lang.getEnumName(jWalker$NodeTypeFilter, valueToVerify) == null) {
-						throw "ArgumentException: Invalid value in whatToShow[" + filterCount + "] = " + valueToVerify;
+					if (jWalker$Lang.getEnumName(jWalker$NodeTypeFilter, valueToVerify) === null) {
+						throw new TypeError("Invalid value in whatToShow[" + filterCount + "] = " + valueToVerify);
 					}
 				}
 
+
+				// TODO: Include this for constructing the compositeFilter but do not expose it to the public API
+				/**
+				 * ???
+				 */
+				/*
+				var getNodeTypeFilterFromNodeType = function jWalker$NodeTypeFilter$getFromNodeType(nodeType) {
+					if (nodeType && typeof(nodeType) === "number" && nodeType.toString().indexOf(".") === -1) {
+						var name = jWalker$Lang.getEnumName(jWalker.NodeType, nodeType);
+						if (name != null) {
+							var nodeTypeFilterName = "SHOW_" + name.toUpperCase().replace(/_NODE$/g, "");
+							return jWalker.NodeTypeFilter[nodeTypeFilterName];
+						}
+					}
+					return null;
+				};
+				*/
 
 				/**
 				 * The root node of the TreeWalker, as specified when it was created.
@@ -325,8 +320,17 @@
 			},
 
 			/**
+			 * Abstract the check for native TreeWalker support so that we can force the non-native TreeWalker for testing
+			 */
+			isTreeWalkerSupportedNatively: function jWalker$isTreeWalkerSupportedNatively() {
+				// The following object checks are approximately equivalent to, but more reliable than:
+				//   document.implementation.hasFeature("Traversal", "2.0")
+				return (document.createTreeWalker && typeof(NodeFilter) !== _undefinedType);
+			},
+
+			/**
 			 * Use the jWalker implementations to override the native API members defined by the browser.
-			 * CONSUMER BEWARE!
+			 * BUYER BEWARE!
 			 */
 			createMissingNativeApi: function jWalker$createMissingNativeApi() {
 				// TODO: Hookup Node, NodeFilter with this.Node, {this.NodeTypeFilter, this.NodeFilter}

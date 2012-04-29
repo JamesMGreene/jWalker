@@ -1,5 +1,5 @@
 /**
- * jWalker JavaScript Library v0.3
+ * jWalker JavaScript Library v0.4
  * http://jamesmgreene.github.com/jWalker/
  *
  * Copyright © 2012: James Greene (Team Gunmetal, Inc.)
@@ -7,7 +7,12 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
+/* JSHint options: */
+/*global Node:true, NodeFilter:true */
+
 (function(window, undefined) {
+	"use strict";
+
 	// Use the correct document accordingly with window argument (sandbox)
 	var document = window.document,
 		_undefinedType = "undefined",
@@ -15,19 +20,28 @@
 		_node = (_isNodeDefined ? Node : undefined),
 		_isNodeFilterDefined = (typeof(NodeFilter) !== _undefinedType),
 		_nodeFilter = (_isNodeFilterDefined ? NodeFilter : undefined),
+		_isCreateTreeWalkerDefined = (typeof(document.createTreeWalker) === "function"),
+
+		/**
+		* The jWalker.Lang object contains a number of utility functions for the language that are needed for jWalker.
+		* @name jWalker.Lang
+		* @private
+		* @namespace
+		*/
 		jWalker$Lang = {
 			/**
-			 * Get the property name of a given value within an enumeration.
-			 * @param {Object} enumObject The current enumeration object.
-			 * @param {Number} enumValue The value of the property whose name is being sought.
-			 * @returns {String} The name of the property, if present; otherwise null.
-			 */
+			* Get the property name of a given value within an enumeration.
+			* @private
+			* @param {Object} enumObject The current enumeration object.
+			* @param {Number} enumValue The value of the property whose name is being sought.
+			* @returns {String} The name of the property, if present; otherwise null.
+			*/
 			getEnumName: function jWalker$Lang$getEnumName(enumObject, enumValue) {
 				// Verify the enumObject is a valid object and the enumValue is a valid integer
 				if (enumObject && typeof(enumObject) === "object" &&
-					typeof(enumValue) === "number" && (new String(enumValue)).indexOf(".") === -1) {
+					typeof(enumValue) === "number" && enumValue.toString().indexOf(".") === -1) {
 					for (var propName in enumObject) {
-						if (enumObject[propName] === enumValue) {
+						if (enumObject.hasOwnProperty(propName) && enumObject[propName] === enumValue) {
 							return propName;
 						}
 					}
@@ -36,10 +50,11 @@
 			},
 
 			/**
-			 * Check if a given object is a native JavaScript Array.
-			 * @param {Object} potentialArray   Required. The object to check.
-			 * @returns {Boolean} True if the object is a native JavaScript Array, otherwise false.
-			 */
+			* Check if a given object is a native JavaScript Array.
+			* @private
+			* @param {Object} potentialArray   Required. The object to check.
+			* @returns {Boolean} True if the object is a native JavaScript Array, otherwise false.
+			*/
 			isArray: function jWalker$Lang$isArray(potentialArray) {
 				var returnValue = false;
 				if (potentialArray && (typeof(potentialArray) === "object")) {
@@ -54,14 +69,15 @@
 			},
 
 			/**
-			 * Gets the index of an item in an array.
-			 * @param {Array} someArray The current class type.
-			 * @param {Object} item The current class type.
-			 * @returns {Number} The first index of the item in the array, if present; otherwise -1.
-			 */
+			* Gets the index of an item in an array.
+			* @private
+			* @param {Array} someArray The current class type.
+			* @param {Object} item The current class type.
+			* @returns {Number} The first index of the item in the array, if present; otherwise -1.
+			*/
 			arrayIndexOf: function jWalker$Lang$arrayIndexOf(someArray, item) {
 				if (jWalker$Lang.isArray(someArray)) {
-					// Many non-IE browsers have implemented Array.indexOf
+					// Many non-IE browsers have already implemented Array.indexOf
 					if (typeof(someArray.indexOf) === "function") {
 						return someArray.indexOf(item);
 					}
@@ -75,20 +91,47 @@
 					return -1;
 				}
 				else {
-					throw "ArgumentException: someArray was not an Array object.";
+					throw new TypeError("someArray was not an Array object");
 				}
 			}
 		},
 
 		/**
-		 * ???
-		 * @namespace
-		 */
+		* Gets the {@link jWalker.NodeTypeFilter} corresponding to the provided {@link jWalker.NodeType}.
+		* @name jWalker.NodeTypeFilter.getFromNodeType
+		* @private
+		* @param {jWalker.NodeType} nodeType The {@link jWalker.NodeType} for which the corresponding {@link jWalker.NodeTypeFilter} is desired.
+		* @returns {jWalker.NodeTypeFilter} The {@link jWalker.NodeTypeFilter} corresponding to the provided {@link jWalker.NodeType}.
+		*/
+		jWalker$NodeTypeFilter$getFromNodeType = function(nodeType) {
+			if (nodeType && typeof(nodeType) === "number" && nodeType.toString().indexOf(".") === -1) {
+				var name = jWalker$Lang.getEnumName(jWalker.NodeType, nodeType);
+				if (name !== null) {
+					var nodeTypeFilterName = "SHOW_" + name.toUpperCase().replace(/_NODE$/g, "");
+					return jWalker.NodeTypeFilter[nodeTypeFilterName];
+				}
+			}
+			return null;
+		},
+
+		/**
+		* jWalker provides a well-tested, cross-browser JavaScript implementation of the
+		* {@link <a href="http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#TreeWalker">TreeWalker</a>}
+		* class defined in the
+		* {@link <a href="http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal">W3C specification for DOM Traversal (DOM Level 2)</a>}.
+		* This bridges the gap left by Internet Explorer browsers less than IE9 (as well as IE9+ when used in IE7/IE8
+		* compatibility mode) when trying to use TreeWalkers. It also addresses a
+		* {@link <a href="https://bugs.webkit.org/show_bug.cgi?id=35296">WebKit bug that the creators of jWalker reported</a>}
+		* that has since been {@link <a href="http://trac.webkit.org/changeset/65853">resolved</a>} but still exists in
+		* older versions of WebKit browsers (e.g. Safari, Chrome). Unfortunately, the same issue also exists in IE9
+		* but has not yet been fixed.
+		* @namespace
+		*/
 		jWalker = {
 			/**
-			 * ???
-			 * @see http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247
-			 */
+			* An enumeration equivalent to the type enumeration in the DOM's Node data type.
+			* @see http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247
+			*/
 			NodeType: {
 				"ELEMENT_NODE": (_isNodeDefined && _node.ELEMENT_NODE ? _node.ELEMENT_NODE : 1),
 				"ATTRIBUTE_NODE": (_isNodeDefined && _node.ATTRIBUTE_NODE ? _node.ATTRIBUTE_NODE : 2),
@@ -105,9 +148,9 @@
 			},
 
 			/**
-			 * ???
-			 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-NodeFilter
-			 */
+			* An enumeration equivalent to the type filtering enumeration portion of the DOM's NodeFilter data type.
+			* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-NodeFilter
+			*/
 			NodeTypeFilter: {
 				"SHOW_ALL": (_isNodeFilterDefined && _nodeFilter.SHOW_ALL ? _nodeFilter.SHOW_ALL : -1),
 				"SHOW_ELEMENT": (_isNodeFilterDefined && _nodeFilter.SHOW_ELEMENT ? _nodeFilter.SHOW_ELEMENT : 1),
@@ -125,9 +168,9 @@
 			},
 
 			/**
-			 * ???
-			 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-NodeFilter
-			 */
+			* An enumeration equivalent to the filtering action enumeration portion of the DOM's NodeFilter data type.
+			* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-NodeFilter
+			*/
 			NodeFilter: {
 				"FILTER_ACCEPT": (_isNodeFilterDefined && _nodeFilter.FILTER_ACCEPT ? _nodeFilter.FILTER_ACCEPT : 1),
 				"FILTER_REJECT": (_isNodeFilterDefined && _nodeFilter.FILTER_REJECT ? _nodeFilter.FILTER_REJECT : 2),
@@ -135,30 +178,37 @@
 			},
 
 			/**
-			 * Cross-browser TreeWalker, yay!
-			 * @constructor
-			 * @class Cross-browser TreeWalker
-			 * @param {Node} root The node to start walking from. The walk results will only include descendant nodes of this one, not this node itself.
-			 * @param {jWalker.NodeTypeFilter[]} whatToShow An array of {@link jWalker.NodeTypeFilter} values.
-			 * @param {NodeFilter} [filter=null] An object containing an acceptNode function to act as a visitor filter to the tree nodes. Can be null.
-			 * @param {Boolean} [expandEntityReferences=false] Indicates whether or not to expand entity references.
-			 */
+			* A cross-browser TreeWalker implementation, yay!
+			* @constructor
+			* @class Cross-browser TreeWalker
+			* @param {Node} root The node to start walking from. The walk results will only include descendant nodes of this one, not this node itself.
+			* @param {jWalker.NodeTypeFilter[]} whatToShow An array of {@link jWalker.NodeTypeFilter} values.
+			* @param {NodeFilter} [filter=null] An object containing an acceptNode function to act as a visitor filter to the tree nodes. Can be null.
+			* @param {Boolean} [expandEntityReferences=false] Indicates whether or not to expand entity references.
+			* @throws {TypeError} root is not a valid Node object
+			* @throws {TypeError} whatToShow is not an array
+			* @throws {TypeError} whatToShow is an empty array
+			* @throws {TypeError} whatToShow contains invalid values
+			* @throws {TypeError} filter is not a valid NodeFilter function or object
+			* @throws {TypeError} expandEntityReferences is not a Boolean
+			*/
 			TreeWalker: function jWalker$TreeWalker(root, whatToShow, filter, expandEntityReferences) {
 				// Alias this into the local scope to save on lookup time
 				var jWalker$NodeTypeFilter = jWalker.NodeTypeFilter,
+				// Private variables (only available via closure scope context)
 				// Hoisting these to the top
+					typeofFilter = typeof(filter),
+					typeofEER = typeof(expandEntityReferences),
 					filterCount,
 					len,
 					valueToVerify,
-				// Private variables (only available via closure scope context)
 					_nativeWalker = null,
 					_nativeWhatToShow = jWalker$NodeTypeFilter.SHOW_ALL,
 					_safeFilter = null,
 					_compositeNodeFilter = null;
 
-
 				// Validate the arguments!
-				if (typeof(Node) !== _undefinedType) {
+				if (_isNodeDefined) {
 					if (!(root instanceof Node)) {
 						throw new TypeError("root is not a valid Node object");
 					}
@@ -168,170 +218,161 @@
 				}
 
 				if (!jWalker$Lang.isArray(whatToShow)) {
-					throw new TypeError("Invalid array provided as value for whatToShow");
+					throw new TypeError("whatToShow is not an array");
 				}
 				else if (whatToShow.length <= 0) {
-					throw new TypeError("Empty array provided as value for whatToShow");
+					throw new TypeError("whatToShow is an empty array");
 				}
 				// Verify all the values are valid
 				for (filterCount = 0, len = whatToShow.length; filterCount < len; filterCount++) {
 					valueToVerify = whatToShow[filterCount];
 					if (jWalker$Lang.getEnumName(jWalker$NodeTypeFilter, valueToVerify) === null) {
-						throw new TypeError("Invalid value in whatToShow[" + filterCount + "] = " + valueToVerify);
+						throw new TypeError("whatToShow contains invalid value at index " + filterCount + ": " + valueToVerify);
 					}
 				}
 
+				if (!(typeofFilter === 'undefined' || filter === null || typeofFilter === 'function' ||
+					(typeofFilter === 'object' && typeof(filter.acceptNode) === 'function'))) {
+					throw new TypeError("filter is not a valid NodeFilter function or object");
+				}
 
-				// TODO: Include this for constructing the compositeFilter but do not expose it to the public API
+				if (typeofEER !== 'undefined' && expandEntityReferences !== null && typeofEER !== 'boolean') {
+					throw new TypeError("expandEntityReferences is not a Boolean");
+				}
+
+
 				/**
-				 * ???
-				 */
-				/*
-				var getNodeTypeFilterFromNodeType = function jWalker$NodeTypeFilter$getFromNodeType(nodeType) {
-					if (nodeType && typeof(nodeType) === "number" && nodeType.toString().indexOf(".") === -1) {
-						var name = jWalker$Lang.getEnumName(jWalker.NodeType, nodeType);
-						if (name != null) {
-							var nodeTypeFilterName = "SHOW_" + name.toUpperCase().replace(/_NODE$/g, "");
-							return jWalker.NodeTypeFilter[nodeTypeFilterName];
-						}
-					}
-					return null;
-				};
+				* The root node of the TreeWalker, as specified when it was created.
+				* @type Node
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-root
 				*/
-
-				/**
-				 * The root node of the TreeWalker, as specified when it was created.
-				 * @type Node
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-root
-				 */
 				this.root = root;
 				/**
-				 * This attribute determines which node types are presented via the TreeWalker.
-				 * The available set of constants is defined in the {@link jWalker.NodeTypeFilter} interface.
-				 * Nodes not accepted by whatToShow will be skipped, but their children may still be considered.
-				 * Note that this skip takes precedence over the filter, if any.
-				 * @type jWalker.NodeTypeFilter[]
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-whatToShow
-				 */
+				* This attribute determines which node types are presented via the TreeWalker.
+				* The available set of constants is defined in the {@link jWalker.NodeTypeFilter} interface.
+				* Nodes not accepted by whatToShow will be skipped, but their children may still be considered.
+				* Note that this skip takes precedence over the filter, if any.
+				* @type jWalker.NodeTypeFilter[]
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-whatToShow
+				*/
 				this.whatToShow = whatToShow;
 				/**
-				 * The filter used to screen nodes.
-				 * @type NodeFilter
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-filter
-				 */
+				* The filter used to screen nodes.
+				* @type NodeFilter
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-filter
+				*/
 				this.filter = filter || null;
 				/**
-				 * The value of this flag determines whether the children of entity reference nodes are visible to the TreeWalker.
-				 * If false, they and their descendants will be rejected. Note that this rejection takes precedence over whatToShow
-				 * and the filter, if any. To produce a view of the document that has entity references expanded and does not expose
-				 * the entity reference node itself, use the whatToShow flags to hide the entity reference node and set
-				 * expandEntityReferences to true when creating the TreeWalker. To produce a view of the document that has entity
-				 * reference nodes but no entity expansion, use the whatToShow flags to show the entity reference node and set
-				 * expandEntityReferences to false.
-				 * @type Boolean
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-expandEntityReferences
-				 */
+				* The value of this flag determines whether the children of entity reference nodes are visible to the TreeWalker.
+				* If false, they and their descendants will be rejected. Note that this rejection takes precedence over whatToShow
+				* and the filter, if any. To produce a view of the document that has entity references expanded and does not expose
+				* the entity reference node itself, use the whatToShow flags to hide the entity reference node and set
+				* expandEntityReferences to true when creating the TreeWalker. To produce a view of the document that has entity
+				* reference nodes but no entity expansion, use the whatToShow flags to show the entity reference node and set
+				* expandEntityReferences to false.
+				* @type Boolean
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-expandEntityReferences
+				*/
 				this.expandEntityReferences = expandEntityReferences || false;
 				/**
-				 * The node at which the TreeWalker is currently positioned. Alterations to the DOM tree may cause the current node
-				 * to no longer be accepted by the TreeWalker's associated filter. currentNode may also be explicitly set to any
-				 * node, whether or not it is within the subtree specified by the root node or would be accepted by the filter and
-				 * whatToShow flags. Further traversal occurs relative to currentNode even if it is not part of the current view,
-				 * by applying the filters in the requested direction; if no traversal is possible, currentNode is not changed.
-				 * @type Node
-				 * @throws {DOMException} NOT_SUPPORTED_ERR: Raised if an attempt is made to set currentNode to null.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-currentNode
-				 */
+				* The node at which the TreeWalker is currently positioned. Alterations to the DOM tree may cause the current node
+				* to no longer be accepted by the TreeWalker's associated filter. currentNode may also be explicitly set to any
+				* node, whether or not it is within the subtree specified by the root node or would be accepted by the filter and
+				* whatToShow flags. Further traversal occurs relative to currentNode even if it is not part of the current view,
+				* by applying the filters in the requested direction; if no traversal is possible, currentNode is not changed.
+				* @type Node
+				* @throws {DOMException} NOT_SUPPORTED_ERR: Raised if an attempt is made to set currentNode to null.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-currentNode
+				*/
 				this.currentNode = root;
 
-
 				/**
-				 * Moves to and returns the closest visible ancestor node of the current node. If the search for
-				 * parentNode attempts to step upward from the TreeWalker's root node, or if it fails to find a
-				 * visible ancestor node, this method retains the current position and returns null.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-parentNode
-				 * @returns {Node} The new parent node, or null if the current node has no parent in the TreeWalker's logical view.
-				 */
+				* Moves to and returns the closest visible ancestor node of the current node. If the search for
+				* parentNode attempts to step upward from the TreeWalker's root node, or if it fails to find a
+				* visible ancestor node, this method retains the current position and returns null.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-parentNode
+				* @returns {Node} The new parent node, or null if the current node has no parent in the TreeWalker's logical view.
+				*/
 				this.parentNode = function jWalker$TreeWalker$parentNode() {
-					return null;
+					throw "NotImplementedYetException";
 				};
 
 				/**
-				 * Moves the TreeWalker to the first visible child of the current node, and returns the new node.
-				 * If the current node has no visible children, returns null, and retains the current node.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-firstChild
-				 * @returns {Node} The new node, or null if the current node has no children in the TreeWalker's logical view.
-				 */
+				* Moves the TreeWalker to the first visible child of the current node, and returns the new node.
+				* If the current node has no visible children, returns null, and retains the current node.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-firstChild
+				* @returns {Node} The new node, or null if the current node has no children in the TreeWalker's logical view.
+				*/
 				this.firstChild = function jWalker$TreeWalker$firstChild() {
-
+					throw "NotImplementedYetException";
 				};
 
 				/**
-				 * Moves the TreeWalker to the last visible child of the current node, and returns the new node.
-				 * If the current node has no visible children, returns null, and retains the current node.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-lastChild
-				 * @returns {Node} The new node, or null if the current node has no children in the TreeWalker's logical view.
-				 */
+				* Moves the TreeWalker to the last visible child of the current node, and returns the new node.
+				* If the current node has no visible children, returns null, and retains the current node.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-lastChild
+				* @returns {Node} The new node, or null if the current node has no children in the TreeWalker's logical view.
+				*/
 				this.lastChild = function jWalker$TreeWalker$lastChild() {
-
+					throw "NotImplementedYetException";
 				};
 
 				/**
-				 * Moves the TreeWalker to the previous sibling of the current node, and returns the new node.
-				 * If the current node has no visible previous sibling, returns null, and retains the current node.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-previousSibling
-				 * @returns {Node} The new node, or null if the current node has no previous sibling in the TreeWalker's logical view.
-				 */
+				* Moves the TreeWalker to the previous sibling of the current node, and returns the new node.
+				* If the current node has no visible previous sibling, returns null, and retains the current node.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-previousSibling
+				* @returns {Node} The new node, or null if the current node has no previous sibling in the TreeWalker's logical view.
+				*/
 				this.previousSibling = function jWalker$TreeWalker$previousSibling() {
-
+					throw "NotImplementedYetException";
 				};
 
 				/**
-				 * Moves the TreeWalker to the next sibling of the current node, and returns the new node.
-				 * If the current node has no visible next sibling, returns null, and retains the current node.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-nextSibling
-				 * @returns {Node} The new node, or null if the current node has no next sibling in the TreeWalker's logical view.
-				 */
+				* Moves the TreeWalker to the next sibling of the current node, and returns the new node.
+				* If the current node has no visible next sibling, returns null, and retains the current node.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-nextSibling
+				* @returns {Node} The new node, or null if the current node has no next sibling in the TreeWalker's logical view.
+				*/
 				this.nextSibling = function jWalker$TreeWalker$nextSibling() {
-
+					throw "NotImplementedYetException";
 				};
 
 				/**
-				 * Moves the TreeWalker to the previous visible node in document order relative to the current node, and
-				 * returns the new node. If the current node has no previous node, or if the search for previousNode
-				 * attempts to step upward from the TreeWalker's root node, returns null, and retains the current node.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-previousNode
-				 * @returns {Node} The new node, or null if the current node has no previous node in the TreeWalker's logical view.
-				 */
+				* Moves the TreeWalker to the previous visible node in document order relative to the current node, and
+				* returns the new node. If the current node has no previous node, or if the search for previousNode
+				* attempts to step upward from the TreeWalker's root node, returns null, and retains the current node.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-previousNode
+				* @returns {Node} The new node, or null if the current node has no previous node in the TreeWalker's logical view.
+				*/
 				this.previousNode = function jWalker$TreeWalker$previousNode() {
-
+					throw "NotImplementedYetException";
 				};
 
 				/**
-				 * Moves the TreeWalker to the next visible node in document order relative to the current node, and
-				 * returns the new node. If the current node has no next node, or if the search for nextNode attempts
-				 * to step upward from the TreeWalker's root node, returns null, and retains the current node.
-				 * @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-nextNode
-				 * @returns {Node} The new node, or null if the current node has no next node in the TreeWalker's logical view.
-				 */
+				* Moves the TreeWalker to the next visible node in document order relative to the current node, and
+				* returns the new node. If the current node has no next node, or if the search for nextNode attempts
+				* to step upward from the TreeWalker's root node, returns null, and retains the current node.
+				* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-TreeWalker-nextNode
+				* @returns {Node} The new node, or null if the current node has no next node in the TreeWalker's logical view.
+				*/
 				this.nextNode = function jWalker$TreeWalker$nextNode() {
-
+					throw "NotImplementedYetException";
 				};
 			},
 
 			/**
-			 * Abstract the check for native TreeWalker support so that we can force the non-native TreeWalker for testing
-			 */
+			* Abstract the check for native TreeWalker support so that we can force the non-native TreeWalker for testing
+			*/
 			isTreeWalkerSupportedNatively: function jWalker$isTreeWalkerSupportedNatively() {
-				// The following object checks are approximately equivalent to, but more reliable than:
+				// The following feature detection checks are approximately equivalent to, but more reliable than:
 				//   document.implementation.hasFeature("Traversal", "2.0")
-				return (document.createTreeWalker && typeof(NodeFilter) !== _undefinedType);
+				return (_isCreateTreeWalkerDefined && _isNodeFilterDefined);
 			},
 
 			/**
-			 * Use the jWalker implementations to override the native API members defined by the browser.
-			 * BUYER BEWARE!
-			 */
+			* Use jWalker to provide the underlying implementation for the native API members defined by the browser.
+			* BUYER BEWARE!
+			*/
 			createMissingNativeApi: function jWalker$createMissingNativeApi() {
 				// TODO: Hookup Node, NodeFilter with this.Node, {this.NodeTypeFilter, this.NodeFilter}
 				// TODO: Deal with conversion of piped NodeTypeFilters into jWalker NodeTypeFilters and back into piped NodeTypeFilters

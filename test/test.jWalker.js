@@ -274,19 +274,77 @@ describe('jWalker', function() {
 			});
 
 			it('should allow null as its [optional] fourth argument ("expandEntityReferences" parameter) but default to false', function() {
-				throw 'NotImplementedYetException';
+				var validNode = document.createElement("div"),
+					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					validFilter = null,
+					eerIn = null,
+					eerOut = false;
+
+				// Affirmative tests
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn); }).to.not.throwError();
+				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
+				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
 			it('should allow undefined as its [optional] fourth argument ("expandEntityReferences" parameter) but default to false', function() {
-				throw 'NotImplementedYetException';
+				var validNode = document.createElement("div"),
+					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					validFilter = null,
+					eerIn = undefined,
+					eerOut = false;
+
+				// Affirmative tests
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn); }).to.not.throwError();
+				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
+				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
-			it('should allow a Boolean of true as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
-				throw 'NotImplementedYetException';
+			it('should allow a Boolean primitive of true as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
+				var validNode = document.createElement("div"),
+					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					validFilter = null,
+					eerIn = true,
+					eerOut = true;
+
+				// Affirmative tests
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn); }).to.not.throwError();
+				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
+				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
-			it('should allow a Boolean of false as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
-				throw 'NotImplementedYetException';
+			it('should allow a Boolean primitive of false as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
+				var validNode = document.createElement("div"),
+					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					validFilter = null,
+					eerIn = false,
+					eerOut = false;
+
+				// Affirmative tests
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn); }).to.not.throwError();
+				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
+				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
 			it('should not allow any other types as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
-				throw 'NotImplementedYetException';
+				var validNode = document.createElement("div"),
+					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					validFilter = null,
+					callbackToVerifyError = function (e) {
+						expect(e).to.be.a(TypeError);
+						expect(e.message).to.equal("expandEntityReferences is not a Boolean primitive");
+					};
+
+				// Negative tests
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, new Boolean(false)); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, new Boolean(true)); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, "X"); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, ""); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, "X"); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, []); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, ["X"]); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, {}); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, {"X": "Y"}); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, function() {}); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, function() { return false; }); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, function() { return true; }); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, document.createElement("a")); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, document.createTextNode("X")); }).to.throwError(callbackToVerifyError);
 			});
 		});
 

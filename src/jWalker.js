@@ -93,6 +93,30 @@
 				else {
 					throw new TypeError("someArray was not an Array object");
 				}
+			},
+
+			/**
+			* Combine properties from all the objects into first one.
+			* - This method affects target object in place, if you want to create a new Object pass an empty object as first param.
+			* @param {object} target Target Object
+			* @param {...object} objects Objects to be combined (0...n objects).
+			* @returns {object} Target Object.
+			* @version 0.1.1 (2012/01/19)
+			* @author Miller Medeiros
+			* @see https://github.com/millermedeiros/amd-utils/blob/master/src/object/mixIn.js
+			*/
+			mixIn: function jWalker$Lang$mixIn(target, objects) {
+				var i = 1,
+					key,
+					cur;
+				while (cur = arguments[i++]) {
+					for (key in cur) {
+						if (Object.prototype.hasOwnProperty.call(cur, key)) {
+							target[key] = cur[key];
+						}
+					}
+				}
+				return target;
 			}
 		},
 
@@ -237,7 +261,7 @@
 				}
 
 				if (typeofEER !== 'undefined' && expandEntityReferences !== null && typeofEER !== 'boolean') {
-					throw new TypeError("expandEntityReferences is not a Boolean");
+					throw new TypeError("expandEntityReferences is not a Boolean primitive");
 				}
 
 
@@ -371,12 +395,80 @@
 
 			/**
 			* Use jWalker to provide the underlying implementation for the native API members defined by the browser.
+			* Note that this will ONLY execute if TreeWalker is not natively supported already.
 			* BUYER BEWARE!
 			*/
 			createMissingNativeApi: function jWalker$createMissingNativeApi() {
-				// TODO: Hookup Node, NodeFilter with this.Node, {this.NodeTypeFilter, this.NodeFilter}
-				// TODO: Deal with conversion of piped NodeTypeFilters into jWalker NodeTypeFilters and back into piped NodeTypeFilters
-				// TODO: Hookup createTreeWalker with jWalker.TreeWalker class
+				if (!jWalker.isTreeWalkerSupportedNatively()) {
+					// Hookup Node with jWalker.Node
+					window.Node = jWalker.NodeType;
+					// Hookup NodeFilter with {jWalker.NodeTypeFilter, jWalker.NodeFilter}
+					window.NodeFilter = jWalker$Lang.mixIn({}, jWalker.NodeTypeFilter, jWalker.NodeFilter);
+
+					// Hookup createTreeWalker with jWalker.TreeWalker class
+					document.createTreeWalker = function jWalker$TreeWalker$nativeWrapper(root, whatToShow, filter, expandEntityReferences) {
+						// Deal with conversion of piped Node[Type]Filters into jWalker.NodeTypeFilters and back into piped Node[Type]Filters
+						var _whatToShow = [],
+							w = whatToShow,
+							jWalker$NodeTypeFilter = jWalker.NodeTypeFilter;
+						if (typeof(w) === 'number') {
+							if (w === jWalker$NodeTypeFilter.SHOW_ALL) {
+								_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ALL);
+							}
+							else {
+								if (w - jWalker$NodeTypeFilter.SHOW_NOTATION > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_NOTATION;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_NOTATION);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_DOCUMENT_FRAGMENT > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_DOCUMENT_FRAGMENT;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_DOCUMENT_FRAGMENT);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_DOCUMENT_TYPE > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_DOCUMENT_TYPE;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_DOCUMENT_TYPE);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_DOCUMENT > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_DOCUMENT;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_DOCUMENT);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_COMMENT > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_COMMENT;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_COMMENT);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_PROCESSING_INSTRUCTION > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_PROCESSING_INSTRUCTION;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_PROCESSING_INSTRUCTION);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_ENTITY > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_ENTITY;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ENTITY);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_ENTITY_REFERENCE > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_ENTITY_REFERENCE;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ENTITY_REFERENCE);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_CDATA_SECTION > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_CDATA_SECTION;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_CDATA_SECTION);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_TEXT > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_TEXT;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_TEXT);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_ATTRIBUTE > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_ATTRIBUTE;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ATTRIBUTE);
+								}
+								if (w - jWalker$NodeTypeFilter.SHOW_ELEMENT > -1) {
+									w -= jWalker$NodeTypeFilter.SHOW_ELEMENT;
+									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ELEMENT);
+								}
+							}
+						}
+						return new jWalker.TreeWalker(root, _whatToShow, filter, !!expandEntityReferences);
+					};
+				}
 			}
 		};
 

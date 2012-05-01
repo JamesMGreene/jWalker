@@ -6,10 +6,10 @@
 	<link href="lib/mocha/mocha.css" rel="stylesheet" type="text/css" media="all" />
 </head>
 <body>
-	<!-- Test output -->
+	<!-- Test framework output -->
 	<div id="mocha"></div>
 
-	<!-- Test setup -->
+	<!-- Test framework setup -->
 	<script type="text/javascript" src="lib/expect/expect.js"></script>
 	<script type="text/javascript" src="lib/mocha/mocha.js"></script>
 	<script type="text/javascript">
@@ -18,6 +18,9 @@
 
 	<!-- Scripts under test -->
 	<script type="text/javascript" src="../src/jWalker.js"></script>
+
+	<!-- Test helpers -->
+	<script type="text/javascript" src="helpers/TWTester.js"></script>
 
 	<!-- Tests -->
 	<script type="text/javascript" src="test.jWalker.js"></script>
@@ -29,7 +32,7 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
-			mocha.run();
+			mocha.run().globals(['Node', 'NodeFilter']);
 		});
 	</script>
 </body>

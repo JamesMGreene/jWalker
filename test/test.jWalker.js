@@ -1,5 +1,5 @@
 /* JSHint options: */
-/*global jWalker:false, expect:false, describe:false, it:false */
+/*global jWalker:false, Node:true, NodeFilter:true, TWTester:false, expect:false, describe:false, it:false, before:false, beforeEach:false, afterEach:false, after:false */
 
 describe('jWalker', function() {
 	"use strict";
@@ -113,8 +113,16 @@ describe('jWalker', function() {
 				expect(function() { return new jWalker.TreeWalker({"X": "Y"}, validWhatToShow, validFilter, validEER); }).to.throwError(callbackToVerifyError);
 
 				// Affirmative tests
-				expect(function() { return new jWalker.TreeWalker(document.createElement("a"), validWhatToShow, validFilter, validEER); }).to.not.throwError();
-				expect(function() { return new jWalker.TreeWalker(document.createTextNode("X"), validWhatToShow, validFilter, validEER); }).to.not.throwError();
+				var rootIn = document.createElement("div"),
+					rootOut = rootIn;
+				expect(function() { return new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER); }).to.not.throwError();
+				expect((new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER)).root).to.equal(rootOut);
+
+				// Try it again with a TextNode
+				rootIn = document.createTextNode("X");
+				rootOut = rootIn;
+				expect(function() { return new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER); }).to.not.throwError();
+				expect((new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER)).root).to.equal(rootOut);
 			});
 
 			it('should require an Array object as its second argument ("whatToShow" parameter)', function() {
@@ -269,7 +277,7 @@ describe('jWalker', function() {
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, ["X"], validEER); }).to.throwError(callbackToVerifyError);
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, {}, validEER); }).to.throwError(callbackToVerifyError);
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, {"X": "Y"}, validEER); }).to.throwError(callbackToVerifyError);
-				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, document.createElement("a"), validEER); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, document.createElement("div"), validEER); }).to.throwError(callbackToVerifyError);
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, document.createTextNode("X"), validEER); }).to.throwError(callbackToVerifyError);
 			});
 
@@ -343,50 +351,170 @@ describe('jWalker', function() {
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, function() {}); }).to.throwError(callbackToVerifyError);
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, function() { return false; }); }).to.throwError(callbackToVerifyError);
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, function() { return true; }); }).to.throwError(callbackToVerifyError);
-				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, document.createElement("a")); }).to.throwError(callbackToVerifyError);
+				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, document.createElement("div")); }).to.throwError(callbackToVerifyError);
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, document.createTextNode("X")); }).to.throwError(callbackToVerifyError);
+			});
+
+			it('should initially set the value of its "currentNode" property to the value of its first argument ("root" parameter)', function() {
+				var validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					validFilter = null,
+					validEER = null,
+					rootIn = document.createElement("div"),
+					rootOut = rootIn;
+
+				// Affirmative tests
+				expect(function() { return new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER); }).to.not.throwError();
+				expect((new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER)).root).to.equal(rootOut);
+				expect((new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER)).currentNode).to.equal(rootOut);
+
+				// Try it again with a TextNode
+				rootIn = document.createTextNode("X");
+				rootOut = rootIn;
+				expect(function() { return new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER); }).to.not.throwError();
+				expect((new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER)).root).to.equal(rootOut);
+				expect((new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER)).currentNode).to.equal(rootOut);
 			});
 		});
 
 		describe('#parentNode', function() {
+			var expectEqual = function(actual, expected, message) {
+					expect(actual).to.equal(expected);
+				};
+
+			it('should be a defined function on a TreeWalker instance', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null;
+
+				// Affirmative tests
+				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).parentNode).to.be.a('function');
+			});
+			it('should not be able to traverse swallower than the root', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null,
+					startNode = root,
+					nativeTreeWalker = new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences),
+					nonNativeTreeWalker = TWTester.createNonNativeTreeWalker(root, whatToShow, filter, expandEntityReferences),
+					croBroTWaT = TWTester.createCrossBrowserTreeWalkerTester(nativeTreeWalker, nonNativeTreeWalker, expectEqual);
+
+				// Affirmative tests
+				nativeTreeWalker.currentNode = startNode;
+				nonNativeTreeWalker.currentNode = startNode;
+				croBroTWaT.verifyWalk([
+					new TWTester.Step(TWTester.StepType.parentNode, root, root, null)
+				]);
+			});
+			// TODO: More tests
 			it('should have more tests', function() {
 				throw 'NotImplementedYetException';
 			});
 		});
 
 		describe('#firstChild', function() {
+			it('should be a defined function on a TreeWalker instance', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null;
+
+				// Affirmative tests
+				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).firstChild).to.be.a('function');
+			});
+			// TODO: More tests
 			it('should have more tests', function() {
 				throw 'NotImplementedYetException';
 			});
 		});
 
 		describe('#lastChild', function() {
+			it('should be a defined function on a TreeWalker instance', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null;
+
+				// Affirmative tests
+				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).lastChild).to.be.a('function');
+			});
+			// TODO: More tests
 			it('should have more tests', function() {
 				throw 'NotImplementedYetException';
 			});
 		});
 
 		describe('#previousSibling', function() {
+			it('should be a defined function on a TreeWalker instance', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null;
+
+				// Affirmative tests
+				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).previousSibling).to.be.a('function');
+			});
+			// TODO: More tests
 			it('should have more tests', function() {
 				throw 'NotImplementedYetException';
 			});
 		});
 
 		describe('#nextSibling', function() {
+			it('should be a defined function on a TreeWalker instance', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null;
+
+				// Affirmative tests
+				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).nextSibling).to.be.a('function');
+			});
+			// TODO: More tests
 			it('should have more tests', function() {
 				throw 'NotImplementedYetException';
 			});
 		});
 
 		describe('#previousNode', function() {
+			it('should be a defined function on a TreeWalker instance', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null;
+
+				// Affirmative tests
+				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).previousNode).to.be.a('function');
+			});
+			// TODO: More tests
 			it('should have more tests', function() {
 				throw 'NotImplementedYetException';
 			});
 		});
 
 		describe('#nextNode', function() {
+			it('should be a defined function on a TreeWalker instance', function() {
+				var root = document.createElement("div"),
+					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
+					filter = null,
+					expandEntityReferences = null;
+
+				// Affirmative tests
+				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).nextNode).to.be.a('function');
+			});
+			// TODO: More tests
 			it('should have more tests', function() {
 				throw 'NotImplementedYetException';
+			});
+		});
+
+		// Robustness requirements of a TreeWalker:
+		// http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#TreeWalker-Robustness
+		describe('should satisfy the Robustness requirements outlined in the W3C spec', function() {
+			// TODO: More tests
+			it('should have more tests', function() {
+				throw "NotImplementedYetException";
 			});
 		});
 	});
@@ -396,7 +524,7 @@ describe('jWalker', function() {
 			expect(jWalker.isTreeWalkerSupportedNatively).to.be.a('function');
 		});
 		it('should [typically] return true when the DOM Traversal 2.0 feature is implemented', function() {
-			// Not strictly true but it SHOULD be true if browsers are not misbehaving
+			// NOTE: Not strictly true but it SHOULD be true if browsers are not misbehaving
 			expect(jWalker.isTreeWalkerSupportedNatively()).to.equal(document.implementation.hasFeature('Traversal', '2.0'));
 		});
 		it('should return true when both the Document#createTreeWalker function and NodeFilter object are available', function() {
@@ -422,6 +550,17 @@ describe('jWalker', function() {
 	});
 
 	describe('#createMissingNativeApi', function() {
+		var originalNode = window.Node,
+			originalNodeFilter = window.NodeFilter,
+			originalCreateTreeWalker = window.document.createTreeWalker;
+
+		// Run this callback after each test in this suite to reset the global state as needed
+		afterEach(function() {
+			window.Node = originalNode;
+			window.NodeFilter = originalNodeFilter;
+			window.document.createTreeWalker = originalCreateTreeWalker;
+		});
+
 		it('should be a defined function', function() {
 			expect(jWalker.createMissingNativeApi).to.be.a('function');
 		});

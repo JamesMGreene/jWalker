@@ -16,10 +16,10 @@
 	// Use the correct document accordingly with window argument (sandbox)
 	var document = window.document,
 		_undefinedType = "undefined",
-		_isNodeDefined = (typeof(Node) !== _undefinedType),
-		_node = (_isNodeDefined ? Node : undefined),
-		_isNodeFilterDefined = (typeof(NodeFilter) !== _undefinedType),
-		_nodeFilter = (_isNodeFilterDefined ? NodeFilter : undefined),
+		_isNodeDefined = (typeof(window.Node) !== _undefinedType),
+		_node = (_isNodeDefined ? window.Node : undefined),
+		_isNodeFilterDefined = (typeof(window.NodeFilter) !== _undefinedType),
+		_nodeFilter = (_isNodeFilterDefined ? window.NodeFilter : undefined),
 		_isCreateTreeWalkerDefined = (typeof(document.createTreeWalker) === "function"),
 
 		/**
@@ -30,6 +30,41 @@
 		*/
 		jWalker$Lang = {
 			/**
+			* Safer Object.hasOwnProperty
+			* @version 0.1.0 (2012/01/19)
+			* @author Miller Medeiros
+			* @see https://github.com/millermedeiros/amd-utils/blob/master/src/object/hasOwn.js
+			*/
+			hasOwn: function jWalker$Lang$hasOwn(obj, prop) {
+				return Object.prototype.hasOwnProperty.call(obj, prop);
+			},
+
+			/**
+			* Combine properties from all the objects into first one.
+			* - This method affects target object in place, if you want to create a new Object pass an empty object as first param.
+			* @param {object} target Target Object
+			* @param {...object} objects Objects to be combined (0...n objects).
+			* @returns {object} Target Object.
+			* @version 0.1.1 (2012/01/19)
+			* @author Miller Medeiros
+			* @see https://github.com/millermedeiros/amd-utils/blob/master/src/object/mixIn.js
+			*/
+			mixIn: function jWalker$Lang$mixIn(target, objects) {
+				var hasOwn = jWalker$Lang.hasOwn,
+					i = 1,
+					key,
+					cur;
+				while (cur = arguments[i++]) {
+					for (key in cur) {
+						if (hasOwn(cur, key)) {
+							target[key] = cur[key];
+						}
+					}
+				}
+				return target;
+			},
+
+			/**
 			* Get the property name of a given value within an enumeration.
 			* @private
 			* @param {Object} enumObject The current enumeration object.
@@ -37,11 +72,12 @@
 			* @returns {String} The name of the property, if present; otherwise null.
 			*/
 			getEnumName: function jWalker$Lang$getEnumName(enumObject, enumValue) {
+				var hasOwn = jWalker$Lang.hasOwn;
 				// Verify the enumObject is a valid object and the enumValue is a valid integer
 				if (enumObject && typeof(enumObject) === "object" &&
 					typeof(enumValue) === "number" && enumValue.toString().indexOf(".") === -1) {
 					for (var propName in enumObject) {
-						if (enumObject.hasOwnProperty(propName) && enumObject[propName] === enumValue) {
+						if (hasOwn(enumObject, propName) && enumObject[propName] === enumValue) {
 							return propName;
 						}
 					}
@@ -91,38 +127,14 @@
 					return -1;
 				}
 				else {
-					throw new TypeError("someArray was not an Array object");
+					throw new TypeError("someArray was not an array");
 				}
-			},
-
-			/**
-			* Combine properties from all the objects into first one.
-			* - This method affects target object in place, if you want to create a new Object pass an empty object as first param.
-			* @param {object} target Target Object
-			* @param {...object} objects Objects to be combined (0...n objects).
-			* @returns {object} Target Object.
-			* @version 0.1.1 (2012/01/19)
-			* @author Miller Medeiros
-			* @see https://github.com/millermedeiros/amd-utils/blob/master/src/object/mixIn.js
-			*/
-			mixIn: function jWalker$Lang$mixIn(target, objects) {
-				var i = 1,
-					key,
-					cur;
-				while (cur = arguments[i++]) {
-					for (key in cur) {
-						if (Object.prototype.hasOwnProperty.call(cur, key)) {
-							target[key] = cur[key];
-						}
-					}
-				}
-				return target;
 			}
 		},
 
 		/**
 		* Gets the {@link jWalker.NodeTypeFilter} corresponding to the provided {@link jWalker.NodeType}.
-		* @name jWalker.NodeTypeFilter.getFromNodeType
+		* @name jWalker.NodeTypeFilter#getFromNodeType
 		* @private
 		* @param {jWalker.NodeType} nodeType The {@link jWalker.NodeType} for which the corresponding {@link jWalker.NodeTypeFilter} is desired.
 		* @returns {jWalker.NodeTypeFilter} The {@link jWalker.NodeTypeFilter} corresponding to the provided {@link jWalker.NodeType}.
@@ -233,7 +245,7 @@
 
 				// Validate the arguments!
 				if (_isNodeDefined) {
-					if (!(root instanceof Node)) {
+					if (!(root instanceof window.Node)) {
 						throw new TypeError("root is not a valid Node object");
 					}
 				}
@@ -410,59 +422,35 @@
 						// Deal with conversion of piped Node[Type]Filters into jWalker.NodeTypeFilters and back into piped Node[Type]Filters
 						var _whatToShow = [],
 							w = whatToShow,
-							jWalker$NodeTypeFilter = jWalker.NodeTypeFilter;
+							jWalker$NodeTypeFilter = jWalker.NodeTypeFilter,
+							valuesToCheck,
+							v;
+
 						if (typeof(w) === 'number') {
 							if (w === jWalker$NodeTypeFilter.SHOW_ALL) {
 								_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ALL);
 							}
 							else {
-								if (w - jWalker$NodeTypeFilter.SHOW_NOTATION > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_NOTATION;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_NOTATION);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_DOCUMENT_FRAGMENT > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_DOCUMENT_FRAGMENT;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_DOCUMENT_FRAGMENT);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_DOCUMENT_TYPE > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_DOCUMENT_TYPE;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_DOCUMENT_TYPE);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_DOCUMENT > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_DOCUMENT;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_DOCUMENT);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_COMMENT > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_COMMENT;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_COMMENT);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_PROCESSING_INSTRUCTION > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_PROCESSING_INSTRUCTION;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_PROCESSING_INSTRUCTION);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_ENTITY > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_ENTITY;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ENTITY);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_ENTITY_REFERENCE > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_ENTITY_REFERENCE;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ENTITY_REFERENCE);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_CDATA_SECTION > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_CDATA_SECTION;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_CDATA_SECTION);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_TEXT > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_TEXT;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_TEXT);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_ATTRIBUTE > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_ATTRIBUTE;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ATTRIBUTE);
-								}
-								if (w - jWalker$NodeTypeFilter.SHOW_ELEMENT > -1) {
-									w -= jWalker$NodeTypeFilter.SHOW_ELEMENT;
-									_whatToShow.push(jWalker$NodeTypeFilter.SHOW_ELEMENT);
+								// Values are in descending numerical order (from largest to smallest)
+								valuesToCheck = [
+									jWalker$NodeTypeFilter.SHOW_NOTATION,
+									jWalker$NodeTypeFilter.SHOW_DOCUMENT_FRAGMENT,
+									jWalker$NodeTypeFilter.SHOW_DOCUMENT_TYPE,
+									jWalker$NodeTypeFilter.SHOW_DOCUMENT,
+									jWalker$NodeTypeFilter.SHOW_COMMENT,
+									jWalker$NodeTypeFilter.SHOW_PROCESSING_INSTRUCTION,
+									jWalker$NodeTypeFilter.SHOW_ENTITY,
+									jWalker$NodeTypeFilter.SHOW_ENTITY_REFERENCE,
+									jWalker$NodeTypeFilter.SHOW_CDATA_SECTION,
+									jWalker$NodeTypeFilter.SHOW_TEXT,
+									jWalker$NodeTypeFilter.SHOW_ATTRIBUTE,
+									jWalker$NodeTypeFilter.SHOW_ELEMENT
+								];
+								for (v in valuesToCheck) {
+									if (w - v > -1) {
+										w -= v;
+										_whatToShow.push(v);
+									}
 								}
 							}
 						}

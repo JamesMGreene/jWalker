@@ -58,7 +58,7 @@
 			* @param {Node} expected_root The expected value of the "root" property after the traversal step operation.
 			* @param {Node} expected_currentNode The expected value of the "currentNode" property after the traversal step operation.
 			*/
-			Step: function(stepType, expected_result, expected_root, expected_currentNode) {
+			Step: function(stepType, expected_result, expected_currentNode, expected_root) {
 				return {
 					type: stepType,
 					expected: {

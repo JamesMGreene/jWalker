@@ -330,6 +330,10 @@
 				* @returns {Node} The new parent node, or null if the current node has no parent in the TreeWalker's logical view.
 				*/
 				this.parentNode = function jWalker$TreeWalker$parentNode() {
+					if (this.currentNode === this.root) {
+						return null;
+					}
+
 					throw "NotImplementedYetException";
 				};
 

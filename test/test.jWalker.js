@@ -404,7 +404,7 @@ describe('jWalker', function() {
 				nativeTreeWalker.currentNode = startNode;
 				nonNativeTreeWalker.currentNode = startNode;
 				croBroTWaT.verifyWalk([
-					new TWTester.Step(TWTester.StepType.parentNode, root, root, null)
+					new TWTester.Step(TWTester.StepType.parentNode, null, root, root)
 				]);
 			});
 			// TODO: More tests

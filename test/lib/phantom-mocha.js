@@ -60,6 +60,7 @@ page.open(phantom.args[0], function(status) {
 			var failedNumInDec = parseInt(failedNum, 10);
 			console.log("Test failures: " + failedNumInDec);
 			phantom.exit((failedNumInDec > 0) ? 1 : 0);
-		});
+		},
+		10000);
 	}
 });

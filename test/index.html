@@ -32,7 +32,12 @@
 
 	<script type="text/javascript">
 		$(document).ready(function() {
-			mocha.run().globals(['Node', 'NodeFilter']);
+			// Basic pass/fail report for PhantomJS execution on TravisCI
+			var mochaDone = function(failures) {
+				this.mochaFailures = failures;
+			};
+
+			mocha.run(mochaDone).globals(['Node', 'NodeFilter']);
 		});
 	</script>
 </body>

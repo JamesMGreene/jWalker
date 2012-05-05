@@ -134,7 +134,7 @@ describe('jWalker', function() {
 						expect(e.message).to.equal("whatToShow is not an array");
 					},
 					callbackToVerifyOtherError = function (e) {
-						expect(e).to.be.a(TypeError);
+						expect(e).to.be.an(Error);
 						expect(e.message).to.not.equal("whatToShow is not an array");
 					};
 
@@ -164,7 +164,7 @@ describe('jWalker', function() {
 						expect(e.message).to.equal("whatToShow is an empty array");
 					},
 					callbackToVerifyOtherError = function (e) {
-						expect(e).to.be.a(TypeError);
+						expect(e).to.be.an(Error);
 						expect(e.message).to.not.equal("whatToShow is an empty array");
 					};
 

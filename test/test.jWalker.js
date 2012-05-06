@@ -408,9 +408,7 @@ describe('jWalker', function() {
 				]);
 			});
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw 'NotImplementedYetException';
-			});
+			it('should have more tests');
 		});
 
 		describe('#firstChild', function() {
@@ -424,9 +422,7 @@ describe('jWalker', function() {
 				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).firstChild).to.be.a('function');
 			});
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw 'NotImplementedYetException';
-			});
+			it('should have more tests');
 		});
 
 		describe('#lastChild', function() {
@@ -440,9 +436,7 @@ describe('jWalker', function() {
 				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).lastChild).to.be.a('function');
 			});
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw 'NotImplementedYetException';
-			});
+			it('should have more tests');
 		});
 
 		describe('#previousSibling', function() {
@@ -456,9 +450,7 @@ describe('jWalker', function() {
 				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).previousSibling).to.be.a('function');
 			});
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw 'NotImplementedYetException';
-			});
+			it('should have more tests');
 		});
 
 		describe('#nextSibling', function() {
@@ -472,9 +464,7 @@ describe('jWalker', function() {
 				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).nextSibling).to.be.a('function');
 			});
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw 'NotImplementedYetException';
-			});
+			it('should have more tests');
 		});
 
 		describe('#previousNode', function() {
@@ -488,9 +478,7 @@ describe('jWalker', function() {
 				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).previousNode).to.be.a('function');
 			});
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw 'NotImplementedYetException';
-			});
+			it('should have more tests');
 		});
 
 		describe('#nextNode', function() {
@@ -504,18 +492,14 @@ describe('jWalker', function() {
 				expect((new jWalker.TreeWalker(root, whatToShow, filter, expandEntityReferences)).nextNode).to.be.a('function');
 			});
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw 'NotImplementedYetException';
-			});
+			it('should have more tests');
 		});
 
 		// Robustness requirements of a TreeWalker:
 		// http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#TreeWalker-Robustness
 		describe('should satisfy the Robustness requirements outlined in the W3C spec', function() {
 			// TODO: More tests
-			it('should have more tests', function() {
-				throw "NotImplementedYetException";
-			});
+			it('should have more tests');
 		});
 	});
 
@@ -565,8 +549,6 @@ describe('jWalker', function() {
 			expect(jWalker.createMissingNativeApi).to.be.a('function');
 		});
 		// TODO: More tests
-		it('should have more tests', function() {
-			throw 'NotImplementedYetException';
-		});
+		it('should have more tests');
 	});
 });

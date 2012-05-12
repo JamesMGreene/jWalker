@@ -62,6 +62,15 @@
 				requirements</a>, which would require intimate browser-level knowledge of any updates
 			made to the live DOM.</p>
 
+		<h2>Usage</h2>
+		<div class="highlight">
+			<pre><span class="kd">var</span> <span class="nx">treeWalker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jWalker</span><span class="p">.</span><span class="nx">TreeWalker</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span>
+					<span class="p">[</span><span class="nx">jWalker</span><span class="p">.</span><span class="nx">NodeTypeFilter</span><span class="p">.</span><span class="nx">SHOW_ALL</span><span class="p">],</span>
+					<span class="kc">null</span><span class="p">,</span>
+					<span class="kc">false</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">resultNode</span> <span class="o">=</span> <span class="nx">treeWalker</span><span class="p">.</span><span class="nx">nextNode</span><span class="p">();</span></pre>
+		</div>
+
 		<h2>License</h2>
 		<ul>
 			<li><a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></li>

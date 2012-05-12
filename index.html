@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="jWalker : A well-tested cross-browser JavaScript implementation of the TreeWalker class defined in the W3C specification for DOM Traversal (DOM Level 2)." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>jWalker</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/JamesMGreene/jWalker">View on GitHub</a>
+
+          <h1 id="project_title">jWalker</h1>
+          <h2 id="project_tagline">A well-tested cross-browser JavaScript implementation of the TreeWalker class defined in the W3C specification for DOM Traversal (DOM Level 2).</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/JamesMGreene/jWalker/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/JamesMGreene/jWalker/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p><a href="http://travis-ci.org/JamesMGreene/jWalker"><img src="https://secure.travis-ci.org/JamesMGreene/jWalker.png" alt="Build Status"></a></p>
+
+<p>jWalker provides a well-tested, cross-browser JavaScript implementation of the <a href="http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#TreeWalker">TreeWalker</a> class defined in
+the <a href="http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal">W3C specification for DOM Traversal (DOM Level 2)</a>.</p>
+
+<p>This bridges the gap left by Internet Explorer browsers less than IE9 (as well as IE9 when used in IE7/IE8
+compatibility mode) when trying to use TreeWalkers.  It also addresses a <a href="https://bugs.webkit.org/show_bug.cgi?id=35296">WebKit bug that I reported</a> that has
+since been <a href="http://trac.webkit.org/changeset/65853">resolved</a> but still exists in older versions of WebKit browsers (e.g. Safari, Chrome).
+Unfortunately, the same issue also exists in IE9 but has not yet been fixed.</p>
+
+<p>Initially, I sought to also provide a well-tested, cross-browser JavaScript implementation of the
+<a href="http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#Iterator-overview">NodeIterator</a> class defined in the <a href="http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal">W3C specification for DOM Traversal (DOM Level 2)</a> as well.  However,
+upon further review, I discovered that the NodeIterator could not be implemented 100% accurately in JavaScript
+due to its <a href="http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal#Iterator-Robustness">robustness requirements</a>, which would require intimate browser-level knowledge of any updates
+made to the live DOM.</p>
+
+<h2>Usage</h2>
+
+<div class="highlight">
+<pre><span class="kd">var</span> <span class="nx">treeWalker</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jWalker</span><span class="p">.</span><span class="nx">TreeWalker</span><span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">jWalker</span><span class="p">.</span><span class="nx">NodeTypeFilter</span><span class="p">.</span><span class="nx">SHOW_ALL</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+</pre>
+</div>
+
+
+<h2>License</h2>
+
+<ul>
+<li><a href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></li>
+</ul><h2>Dependencies</h2>
+
+<ul>
+<li>None</li>
+</ul><h2>Unit Tests</h2>
+
+<ul>
+<li><a href="test/index.html">Mocha test suite</a></li>
+</ul><h2>Demos</h2>
+
+<ul>
+<li>None</li>
+</ul><h2>Author</h2>
+
+<ul>
+<li>
+<a href="http://www.jamesgreene.net/">James M. Greene</a> (<a href="https://github.com/JamesMGreene" class="user-mention">@JamesMGreene</a>)</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">jWalker maintained by <a href="https://github.com/JamesMGreene">JamesMGreene</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-21133140-7");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>

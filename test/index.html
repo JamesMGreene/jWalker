@@ -26,9 +26,18 @@
 	<script type="text/javascript" src="test.jWalker.js"></script>
 
 	<!-- Test execution onReady -->
-	<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline or using file protocol -->
-	<!-- <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> -->
-	<script type="text/javascript">window.jQuery || document.write('<script type="text/javascript" src="lib/jquery-1.7.1.min.js"><\/script>')</script>
+	<!-- Grab Google CDN's jQuery, with a protocol relative URL if using "http"/"https" protocol.
+		If using "file" protocol, go straight for the local copy. -->
+	<script type="text/javascript">
+		(function() {
+			var jqueryUrl = window.location.protocol === "file" ?
+					"lib/jquery-1.7.1.min.js" :
+					"//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js";
+			document.write('<script type="text/javascript" src="' + jqueryUrl + '"><\/script>');
+		})();
+	</script>
+	<!-- An extra fallback to local for if using "http"/"https" protocol but offline -->
+	<script type="text/javascript">window.jQuery || document.write('<script type="text/javascript" src="lib/jquery-1.7.1.min.js"><\/script>');</script>
 
 	<script type="text/javascript">
 		$(document).ready(function() {

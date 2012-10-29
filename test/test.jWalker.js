@@ -20,7 +20,7 @@ describe('jWalker', function() {
 				"DOCUMENT_NODE", "DOCUMENT_TYPE_NODE", "DOCUMENT_FRAGMENT_NODE", "NOTATION_NODE"
 			]);
 		});
-		it("should be an enumeration equivalent to the type enumeration in the DOM's Node data type", function() {
+		it("should be an enumeration equivalent to the type enumeration in the DOM's `Node` data type", function() {
 			expect(jWalker.NodeType).to.eql({
 				"ELEMENT_NODE": 1,
 				"ATTRIBUTE_NODE": 2,
@@ -49,7 +49,7 @@ describe('jWalker', function() {
 				"SHOW_DOCUMENT", "SHOW_DOCUMENT_TYPE", "SHOW_DOCUMENT_FRAGMENT", "SHOW_NOTATION"
 			]);
 		});
-		it("should be an enumeration equivalent to the type filtering enumeration portion of the DOM's NodeFilter data type", function() {
+		it("should be an enumeration equivalent to the type filtering enumeration portion of the DOM's `NodeFilter` data type", function() {
 			expect(jWalker.NodeTypeFilter).to.eql({
 				"SHOW_ALL": -1,
 				"SHOW_ELEMENT": 1,
@@ -75,7 +75,7 @@ describe('jWalker', function() {
 		it('should only contain the expected set of 3 keys', function() {
 			expect(jWalker.NodeFilter).to.only.have.keys(["FILTER_ACCEPT", "FILTER_REJECT", "FILTER_SKIP"]);
 		});
-		it("should be an enumeration equivalent to the filtering action enumeration portion of the DOM's NodeFilter data type", function() {
+		it("should be an enumeration equivalent to the filtering action enumeration portion of the DOM's `NodeFilter` data type", function() {
 			expect(jWalker.NodeFilter).to.eql({
 				"FILTER_ACCEPT": 1,
 				"FILTER_REJECT": 2,
@@ -90,13 +90,13 @@ describe('jWalker', function() {
 		});
 
 		describe('#constructor', function() {
-			it('should require a Node object as its first argument ("root" parameter)', function() {
+			it('should require a `Node` object as its first argument (`root` parameter)', function() {
 				var validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validFilter = null,
 					validEER = null,
 					callbackToVerifyError = function (e) {
 						expect(e).to.be.a(TypeError);
-						expect(e.message).to.equal("root is not a valid Node object");
+						expect(e.message).to.equal("`root` is not a valid `Node` object");
 					};
 
 				// Negative tests
@@ -125,17 +125,17 @@ describe('jWalker', function() {
 				expect((new jWalker.TreeWalker(rootIn, validWhatToShow, validFilter, validEER)).root).to.equal(rootOut);
 			});
 
-			it('should require an Array object as its second argument ("whatToShow" parameter)', function() {
+			it('should require an Array as its second argument (`whatToShow` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validFilter = null,
 					validEER = null,
 					callbackToVerifyError = function (e) {
 						expect(e).to.be.a(TypeError);
-						expect(e.message).to.equal("whatToShow is not an array");
+						expect(e.message).to.equal("`whatToShow` is not an array");
 					},
 					callbackToVerifyOtherError = function (e) {
 						expect(e).to.be.an(Error);
-						expect(e.message).to.not.equal("whatToShow is not an array");
+						expect(e.message).to.not.equal("`whatToShow` is not an array");
 					};
 
 				// Negative tests
@@ -155,17 +155,17 @@ describe('jWalker', function() {
 				// Affirmative tests
 				expect(function() { return new jWalker.TreeWalker(validNode, [jWalker.NodeTypeFilter.SHOW_ALL], validFilter, validEER); }).to.not.throwError();
 			});
-			it('should require a non-empty Array as its second argument ("whatToShow" parameter)', function() {
+			it('should require a non-empty Array as its second argument (`whatToShow` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validFilter = null,
 					validEER = null,
 					callbackToVerifyError = function (e) {
 						expect(e).to.be.a(TypeError);
-						expect(e.message).to.equal("whatToShow is an empty array");
+						expect(e.message).to.equal("`whatToShow` is an empty array");
 					},
 					callbackToVerifyOtherError = function (e) {
 						expect(e).to.be.an(Error);
-						expect(e.message).to.not.equal("whatToShow is an empty array");
+						expect(e.message).to.not.equal("`whatToShow` is an empty array");
 					};
 
 				// Negative tests
@@ -177,13 +177,13 @@ describe('jWalker', function() {
 				// Affirmative tests
 				expect(function() { return new jWalker.TreeWalker(validNode, [jWalker.NodeTypeFilter.SHOW_ALL], validFilter, validEER); }).to.not.throwError();
 			});
-			it('should require that all items in the Array provided as its second argument ("whatToShow" parameter) are valid values', function() {
+			it('should require that all items in the Array provided as its second argument (`whatToShow` parameter) are valid values', function() {
 				var validNode = document.createElement("div"),
 					validFilter = null,
 					validEER = null,
 					callbackToVerifyError = function (e) {
 						expect(e).to.be.a(TypeError);
-						expect(e.message).to.contain("whatToShow contains invalid value at index ");
+						expect(e.message).to.contain("`whatToShow` contains invalid value at index ");
 					};
 
 				// Negative tests
@@ -197,7 +197,7 @@ describe('jWalker', function() {
 				expect(function() { return new jWalker.TreeWalker(validNode, [jWalker.NodeTypeFilter.SHOW_ELEMENT, jWalker.NodeTypeFilter.SHOW_TEXT], validFilter, validEER); }).to.not.throwError();
 			});
 
-			it('should allow null as its [optional] third argument ("filter" parameter)', function() {
+			it('should allow `null` as its [optional] third argument (`filter` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validEER = null,
@@ -209,7 +209,7 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).filter).to.equal(filterOut);
 			});
-			it('should allow undefined as its [optional] third argument ("filter" parameter) but default to null', function() {
+			it('should allow `undefined` as its [optional] third argument (`filter` parameter) but default to `null`', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validEER = null,
@@ -221,7 +221,7 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).filter).to.equal(filterOut);
 			});
-			it('should allow a function as its [optional] third argument ("filter" parameter)', function() {
+			it('should allow a function as its [optional] third argument (`filter` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validEER = null,
@@ -240,7 +240,7 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).filter).to.equal(filterOut);
 			});
-			it('should allow an object with an "acceptNode" function as its [optional] third argument ("filter" parameter)', function() {
+			it('should allow an object with an `acceptNode` function as its [optional] third argument (`filter` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validEER = null,
@@ -259,13 +259,13 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, filterIn, validEER)).filter).to.equal(filterOut);
 			});
-			it('should not allow any other types as its [optional] third argument ("filter" parameter)', function() {
+			it('should not allow any other types as its [optional] third argument (`filter` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validEER = null,
 					callbackToVerifyError = function (e) {
 						expect(e).to.be.a(TypeError);
-						expect(e.message).to.equal("filter is not a valid NodeFilter function or object");
+						expect(e.message).to.equal("`filter` is not a valid `NodeFilter` function or object");
 					};
 
 				// Negative tests
@@ -281,7 +281,7 @@ describe('jWalker', function() {
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, document.createTextNode("X"), validEER); }).to.throwError(callbackToVerifyError);
 			});
 
-			it('should allow null as its [optional] fourth argument ("expandEntityReferences" parameter) but default to false', function() {
+			it('should allow `null` as its [optional] fourth argument (`expandEntityReferences` parameter) but default to `false`', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validFilter = null,
@@ -293,7 +293,7 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
-			it('should allow undefined as its [optional] fourth argument ("expandEntityReferences" parameter) but default to false', function() {
+			it('should allow `undefined` as its [optional] fourth argument (`expandEntityReferences` parameter) but default to `false`', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validFilter = null,
@@ -305,7 +305,7 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
-			it('should allow a Boolean primitive of true as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
+			it('should allow a Boolean primitive of `true` as its [optional] fourth argument (`expandEntityReferences` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validFilter = null,
@@ -317,7 +317,7 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
-			it('should allow a Boolean primitive of false as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
+			it('should allow a Boolean primitive of `false` as its [optional] fourth argument (`expandEntityReferences` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validFilter = null,
@@ -329,13 +329,13 @@ describe('jWalker', function() {
 				expect(new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).to.be.a(jWalker.TreeWalker);
 				expect((new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, eerIn)).expandEntityReferences).to.equal(eerOut);
 			});
-			it('should not allow any other types as its [optional] fourth argument ("expandEntityReferences" parameter)', function() {
+			it('should not allow any other types as its [optional] fourth argument (`expandEntityReferences` parameter)', function() {
 				var validNode = document.createElement("div"),
 					validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validFilter = null,
 					callbackToVerifyError = function (e) {
 						expect(e).to.be.a(TypeError);
-						expect(e.message).to.equal("expandEntityReferences is not a Boolean primitive");
+						expect(e.message).to.equal("`expandEntityReferences` is not a Boolean primitive");
 					};
 
 				// Negative tests
@@ -355,7 +355,7 @@ describe('jWalker', function() {
 				expect(function() { return new jWalker.TreeWalker(validNode, validWhatToShow, validFilter, document.createTextNode("X")); }).to.throwError(callbackToVerifyError);
 			});
 
-			it('should initially set the value of its "currentNode" property to the value of its first argument ("root" parameter)', function() {
+			it('should initially set the value of its "currentNode" property to the value of its first argument (`root` parameter)', function() {
 				var validWhatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					validFilter = null,
 					validEER = null,
@@ -381,7 +381,7 @@ describe('jWalker', function() {
 					expect(actual).to.equal(expected);
 				};
 
-			it('should be a defined function on a TreeWalker instance', function() {
+			it('should be a defined function on a `TreeWalker` instance', function() {
 				var root = document.createElement("div"),
 					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					filter = null,
@@ -412,7 +412,7 @@ describe('jWalker', function() {
 		});
 
 		describe('#firstChild', function() {
-			it('should be a defined function on a TreeWalker instance', function() {
+			it('should be a defined function on a `TreeWalker` instance', function() {
 				var root = document.createElement("div"),
 					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					filter = null,
@@ -426,7 +426,7 @@ describe('jWalker', function() {
 		});
 
 		describe('#lastChild', function() {
-			it('should be a defined function on a TreeWalker instance', function() {
+			it('should be a defined function on a `TreeWalker` instance', function() {
 				var root = document.createElement("div"),
 					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					filter = null,
@@ -440,7 +440,7 @@ describe('jWalker', function() {
 		});
 
 		describe('#previousSibling', function() {
-			it('should be a defined function on a TreeWalker instance', function() {
+			it('should be a defined function on a `TreeWalker` instance', function() {
 				var root = document.createElement("div"),
 					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					filter = null,
@@ -454,7 +454,7 @@ describe('jWalker', function() {
 		});
 
 		describe('#nextSibling', function() {
-			it('should be a defined function on a TreeWalker instance', function() {
+			it('should be a defined function on a `TreeWalker` instance', function() {
 				var root = document.createElement("div"),
 					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					filter = null,
@@ -468,7 +468,7 @@ describe('jWalker', function() {
 		});
 
 		describe('#previousNode', function() {
-			it('should be a defined function on a TreeWalker instance', function() {
+			it('should be a defined function on a `TreeWalker` instance', function() {
 				var root = document.createElement("div"),
 					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					filter = null,
@@ -482,7 +482,7 @@ describe('jWalker', function() {
 		});
 
 		describe('#nextNode', function() {
-			it('should be a defined function on a TreeWalker instance', function() {
+			it('should be a defined function on a `TreeWalker` instance', function() {
 				var root = document.createElement("div"),
 					whatToShow = [jWalker.NodeTypeFilter.SHOW_ALL],
 					filter = null,
@@ -507,11 +507,11 @@ describe('jWalker', function() {
 		it('should be a defined function', function() {
 			expect(jWalker.isTreeWalkerSupportedNatively).to.be.a('function');
 		});
-		it('should [typically] return true when the DOM Traversal 2.0 feature is implemented', function() {
+		it('should [typically] return `true` when the DOM Traversal 2.0 feature is implemented', function() {
 			// NOTE: Not strictly true but it SHOULD be true if browsers are not misbehaving
 			expect(jWalker.isTreeWalkerSupportedNatively()).to.equal(document.implementation.hasFeature('Traversal', '2.0'));
 		});
-		it('should return true when both the Document#createTreeWalker function and NodeFilter object are available', function() {
+		it('should return `true` when both the `Document#createTreeWalker` function and `NodeFilter` object are available', function() {
 			expect(jWalker.isTreeWalkerSupportedNatively()).to.equal(document.createTreeWalker && typeof(NodeFilter) !== 'undefined');
 		});
 		it('can be overridden for testing purposes', function() {

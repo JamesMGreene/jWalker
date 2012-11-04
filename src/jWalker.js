@@ -1,5 +1,5 @@
 /**
-* jWalker v0.5
+* jWalker v0.6
 * http://jamesmgreene.github.com/jWalker/
 *
 * @author James Greene
@@ -9,21 +9,36 @@
 */
 
 /* JSHint options: */
-/*global */
-/*jshint browser:true, evil:false, asi:false, forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, latedef:true, newcap:true, nonew:true, curly:true, plusplus:false, quotmark:true, regexp:true, indent:4, multistr:false, white:false, funcscope:true, maxerr:50 */
+/*global exports:false, global:false, define:false, module:false */
+/*jshint browser:true, evil:false, asi:false, forin:true, noarg:true, noempty:true, eqeqeq:true, bitwise:true, strict:true, undef:true, unused:true, latedef:true, newcap:true, nonew:true, curly:true, plusplus:false, quotmark:true, regexp:true, indent:4, multistr:false, white:true, funcscope:true, maxerr:50 */
 
-(function(window, undefined) {
-	/*jshint white:true */
-	"use strict";
+(function (window, undefined) {
+	'use strict';
+	
+	// Detect free variable `exports`
+	var freeExports = typeof exports === 'object' && exports;
+	
+	// Detect free variable `global` and use it as `window`
+	var freeGlobal = typeof global === 'object' && global;
+	if (freeGlobal.global === freeGlobal) {
+		window = freeGlobal;
+	}
+	
+	var exportName = 'jWalker';
+	
+	// Store the original `window.jWalker`, if any, in case the user wants to call `noConflict()`
+	var jWalkerOrig = window[exportName];
+	
+	/*--------------------------------------------------------------------------*/
 	
 	// Use the correct document accordingly with window argument (sandbox)
 	var document = window.document,
-		_undefinedType = "undefined",
+		_undefinedType = 'undefined',
 		_isNodeDefined = (typeof window.Node !== _undefinedType),
 		_node = (_isNodeDefined ? window.Node : undefined),
 		_isNodeFilterDefined = (typeof window.NodeFilter !== _undefinedType),
 		_nodeFilter = (_isNodeFilterDefined ? window.NodeFilter : undefined),
-		_isCreateTreeWalkerDefined = (typeof document.createTreeWalker === "function"),
+		_isCreateTreeWalkerDefined = (typeof document.createTreeWalker === 'function'),
 
 		/**
 		* The jWalker.Lang object contains a number of utility functions for the language that are needed for jWalker.
@@ -81,8 +96,8 @@
 			getEnumName: function jWalker$Lang$getEnumName(enumObject, enumValue) {
 				var hasOwn = jWalker$Lang.hasOwn;
 				// Verify the enumObject is a valid object and the enumValue is a valid integer
-				if (enumObject && typeof enumObject === "object" &&
-					typeof enumValue === "number" && enumValue.toString().indexOf(".") === -1) {
+				if (enumObject && typeof enumObject === 'object' &&
+					typeof enumValue === 'number' && enumValue.toString().indexOf('.') === -1) {
 					for (var propName in enumObject) {
 						if (hasOwn(enumObject, propName) && enumObject[propName] === enumValue) {
 							return propName;
@@ -100,10 +115,10 @@
 			*/
 			isArray: function jWalker$Lang$isArray(potentialArray) {
 				var returnValue = false;
-				if (potentialArray && (typeof potentialArray === "object")) {
+				if (potentialArray && (typeof potentialArray === 'object')) {
 					if (potentialArray.constructor) {
-						var constructorText = potentialArray.constructor.toString().replace(/\s+/g, " ");
-						if (constructorText === "function Array() { [native code] }") {
+						var constructorText = potentialArray.constructor.toString().replace(/\s+/g, ' ');
+						if (constructorText === 'function Array() { [native code] }') {
 							returnValue = true;
 						}
 					}
@@ -121,7 +136,7 @@
 			arrayIndexOf: function jWalker$Lang$arrayIndexOf(someArray, item) {
 				if (jWalker$Lang.isArray(someArray)) {
 					// Many non-IE browsers have already implemented Array.indexOf
-					if (typeof someArray.indexOf === "function") {
+					if (typeof someArray.indexOf === 'function') {
 						return someArray.indexOf(item);
 					}
 					else {
@@ -134,7 +149,7 @@
 					return -1;
 				}
 				else {
-					throw new TypeError("someArray was not an array");
+					throw new TypeError('someArray was not an array');
 				}
 			}
 		},
@@ -148,10 +163,10 @@
 			 * @returns {jWalker.NodeTypeFilter} The {@link jWalker.NodeTypeFilter} corresponding to the provided {@link jWalker.NodeType}.
 			 */
 			getFromNodeType: function jWalker$NodeTypeFilter$getFromNodeType(nodeType) {
-				if (nodeType && typeof nodeType === "number" && nodeType.toString().indexOf(".") === -1) {
+				if (nodeType && typeof nodeType === 'number' && nodeType.toString().indexOf('.') === -1) {
 					var name = jWalker$Lang.getEnumName(jWalker.NodeType, nodeType);
 					if (name !== null) {
-						var nodeTypeFilterName = "SHOW_" + name.replace(/_NODE$/, "");
+						var nodeTypeFilterName = 'SHOW_' + name.replace(/_NODE$/, '');
 						return jWalker.NodeTypeFilter[nodeTypeFilterName];
 					}
 				}
@@ -191,55 +206,55 @@
 			* An enumeration equivalent to the type enumeration in the DOM's Node data type.
 			* @see http://www.w3.org/TR/DOM-Level-2-Core/core.html#ID-1950641247
 			* @readonly
-			* @enum {number}
+			* @enum {Number}
 			*/
 			NodeType: {
-				"ELEMENT_NODE": (_isNodeDefined && _node.ELEMENT_NODE ? _node.ELEMENT_NODE : 1),
-				"ATTRIBUTE_NODE": (_isNodeDefined && _node.ATTRIBUTE_NODE ? _node.ATTRIBUTE_NODE : 2),
-				"TEXT_NODE": (_isNodeDefined && _node.TEXT_NODE ? _node.TEXT_NODE : 3),
-				"CDATA_SECTION_NODE": (_isNodeDefined && _node.CDATA_SECTION_NODE ? _node.CDATA_SECTION_NODE : 4),
-				"ENTITY_REFERENCE_NODE": (_isNodeDefined && _node.ENTITY_REFERENCE_NODE ? _node.ENTITY_REFERENCE_NODE : 5),
-				"ENTITY_NODE": (_isNodeDefined && _node.ENTITY_NODE ? _node.ENTITY_NODE : 6),
-				"PROCESSING_INSTRUCTION_NODE": (_isNodeDefined && _node.PROCESSING_INSTRUCTION_NODE ? _node.PROCESSING_INSTRUCTION_NODE : 7),
-				"COMMENT_NODE": (_isNodeDefined && _node.COMMENT_NODE ? _node.COMMENT_NODE : 8),
-				"DOCUMENT_NODE": (_isNodeDefined && _node.DOCUMENT_NODE ? _node.DOCUMENT_NODE : 9),
-				"DOCUMENT_TYPE_NODE": (_isNodeDefined && _node.DOCUMENT_TYPE_NODE ? _node.DOCUMENT_TYPE_NODE : 10),
-				"DOCUMENT_FRAGMENT_NODE": (_isNodeDefined && _node.DOCUMENT_FRAGMENT_NODE ? _node.DOCUMENT_FRAGMENT_NODE : 11),
-				"NOTATION_NODE": (_isNodeDefined && _node.NOTATION_NODE ? _node.NOTATION_NODE : 12)
+				'ELEMENT_NODE': (_isNodeDefined && _node.ELEMENT_NODE ? _node.ELEMENT_NODE : 1),
+				'ATTRIBUTE_NODE': (_isNodeDefined && _node.ATTRIBUTE_NODE ? _node.ATTRIBUTE_NODE : 2),
+				'TEXT_NODE': (_isNodeDefined && _node.TEXT_NODE ? _node.TEXT_NODE : 3),
+				'CDATA_SECTION_NODE': (_isNodeDefined && _node.CDATA_SECTION_NODE ? _node.CDATA_SECTION_NODE : 4),
+				'ENTITY_REFERENCE_NODE': (_isNodeDefined && _node.ENTITY_REFERENCE_NODE ? _node.ENTITY_REFERENCE_NODE : 5),
+				'ENTITY_NODE': (_isNodeDefined && _node.ENTITY_NODE ? _node.ENTITY_NODE : 6),
+				'PROCESSING_INSTRUCTION_NODE': (_isNodeDefined && _node.PROCESSING_INSTRUCTION_NODE ? _node.PROCESSING_INSTRUCTION_NODE : 7),
+				'COMMENT_NODE': (_isNodeDefined && _node.COMMENT_NODE ? _node.COMMENT_NODE : 8),
+				'DOCUMENT_NODE': (_isNodeDefined && _node.DOCUMENT_NODE ? _node.DOCUMENT_NODE : 9),
+				'DOCUMENT_TYPE_NODE': (_isNodeDefined && _node.DOCUMENT_TYPE_NODE ? _node.DOCUMENT_TYPE_NODE : 10),
+				'DOCUMENT_FRAGMENT_NODE': (_isNodeDefined && _node.DOCUMENT_FRAGMENT_NODE ? _node.DOCUMENT_FRAGMENT_NODE : 11),
+				'NOTATION_NODE': (_isNodeDefined && _node.NOTATION_NODE ? _node.NOTATION_NODE : 12)
 			},
 
 			/**
 			* An enumeration equivalent to the type filtering enumeration portion of the DOM's NodeFilter data type.
 			* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-NodeFilter
 			* @readonly
-			* @enum {number}
+			* @enum {Number}
 			*/
 			NodeTypeFilter: {
-				"SHOW_ALL": (_isNodeFilterDefined && _nodeFilter.SHOW_ALL ? _nodeFilter.SHOW_ALL : -1),
-				"SHOW_ELEMENT": (_isNodeFilterDefined && _nodeFilter.SHOW_ELEMENT ? _nodeFilter.SHOW_ELEMENT : 1),
-				"SHOW_ATTRIBUTE": (_isNodeFilterDefined && _nodeFilter.SHOW_ATTRIBUTE ? _nodeFilter.SHOW_ATTRIBUTE : 2),
-				"SHOW_TEXT": (_isNodeFilterDefined && _nodeFilter.SHOW_TEXT ? _nodeFilter.SHOW_TEXT : 4),
-				"SHOW_CDATA_SECTION": (_isNodeFilterDefined && _nodeFilter.SHOW_CDATA_SECTION ? _nodeFilter.SHOW_CDATA_SECTION : 8),
-				"SHOW_ENTITY_REFERENCE": (_isNodeFilterDefined && _nodeFilter.SHOW_ENTITY_REFERENCE ? _nodeFilter.SHOW_ENTITY_REFERENCE : 16),
-				"SHOW_ENTITY": (_isNodeFilterDefined && _nodeFilter.SHOW_ENTITY ? _nodeFilter.SHOW_ENTITY : 32),
-				"SHOW_PROCESSING_INSTRUCTION": (_isNodeFilterDefined && _nodeFilter.SHOW_PROCESSING_INSTRUCTION ? _nodeFilter.SHOW_PROCESSING_INSTRUCTION : 64),
-				"SHOW_COMMENT": (_isNodeFilterDefined && _nodeFilter.SHOW_COMMENT ? _nodeFilter.SHOW_COMMENT : 128),
-				"SHOW_DOCUMENT": (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT ? _nodeFilter.SHOW_DOCUMENT : 256),
-				"SHOW_DOCUMENT_TYPE": (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT_TYPE ? _nodeFilter.SHOW_DOCUMENT_TYPE : 512),
-				"SHOW_DOCUMENT_FRAGMENT": (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT_FRAGMENT ? _nodeFilter.SHOW_DOCUMENT_FRAGMENT : 1024),
-				"SHOW_NOTATION": (_isNodeFilterDefined && _nodeFilter.SHOW_NOTATION ? _nodeFilter.SHOW_NOTATION : 2048)
+				'SHOW_ALL': (_isNodeFilterDefined && _nodeFilter.SHOW_ALL ? _nodeFilter.SHOW_ALL : -1),
+				'SHOW_ELEMENT': (_isNodeFilterDefined && _nodeFilter.SHOW_ELEMENT ? _nodeFilter.SHOW_ELEMENT : 1),
+				'SHOW_ATTRIBUTE': (_isNodeFilterDefined && _nodeFilter.SHOW_ATTRIBUTE ? _nodeFilter.SHOW_ATTRIBUTE : 2),
+				'SHOW_TEXT': (_isNodeFilterDefined && _nodeFilter.SHOW_TEXT ? _nodeFilter.SHOW_TEXT : 4),
+				'SHOW_CDATA_SECTION': (_isNodeFilterDefined && _nodeFilter.SHOW_CDATA_SECTION ? _nodeFilter.SHOW_CDATA_SECTION : 8),
+				'SHOW_ENTITY_REFERENCE': (_isNodeFilterDefined && _nodeFilter.SHOW_ENTITY_REFERENCE ? _nodeFilter.SHOW_ENTITY_REFERENCE : 16),
+				'SHOW_ENTITY': (_isNodeFilterDefined && _nodeFilter.SHOW_ENTITY ? _nodeFilter.SHOW_ENTITY : 32),
+				'SHOW_PROCESSING_INSTRUCTION': (_isNodeFilterDefined && _nodeFilter.SHOW_PROCESSING_INSTRUCTION ? _nodeFilter.SHOW_PROCESSING_INSTRUCTION : 64),
+				'SHOW_COMMENT': (_isNodeFilterDefined && _nodeFilter.SHOW_COMMENT ? _nodeFilter.SHOW_COMMENT : 128),
+				'SHOW_DOCUMENT': (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT ? _nodeFilter.SHOW_DOCUMENT : 256),
+				'SHOW_DOCUMENT_TYPE': (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT_TYPE ? _nodeFilter.SHOW_DOCUMENT_TYPE : 512),
+				'SHOW_DOCUMENT_FRAGMENT': (_isNodeFilterDefined && _nodeFilter.SHOW_DOCUMENT_FRAGMENT ? _nodeFilter.SHOW_DOCUMENT_FRAGMENT : 1024),
+				'SHOW_NOTATION': (_isNodeFilterDefined && _nodeFilter.SHOW_NOTATION ? _nodeFilter.SHOW_NOTATION : 2048)
 			},
 
 			/**
 			* An enumeration equivalent to the filtering action enumeration portion of the DOM's NodeFilter data type.
 			* @see http://www.w3.org/TR/DOM-Level-2-Traversal-Range/traversal.html#Traversal-NodeFilter
 			* @readonly
-			* @enum {number}
+			* @enum {Number}
 			*/
 			NodeFilter: {
-				"FILTER_ACCEPT": (_isNodeFilterDefined && _nodeFilter.FILTER_ACCEPT ? _nodeFilter.FILTER_ACCEPT : 1),
-				"FILTER_REJECT": (_isNodeFilterDefined && _nodeFilter.FILTER_REJECT ? _nodeFilter.FILTER_REJECT : 2),
-				"FILTER_SKIP": (_isNodeFilterDefined && _nodeFilter.FILTER_SKIP ? _nodeFilter.FILTER_SKIP : 3)
+				'FILTER_ACCEPT': (_isNodeFilterDefined && _nodeFilter.FILTER_ACCEPT ? _nodeFilter.FILTER_ACCEPT : 1),
+				'FILTER_REJECT': (_isNodeFilterDefined && _nodeFilter.FILTER_REJECT ? _nodeFilter.FILTER_REJECT : 2),
+				'FILTER_SKIP': (_isNodeFilterDefined && _nodeFilter.FILTER_SKIP ? _nodeFilter.FILTER_SKIP : 3)
 			},
 
 			/**
@@ -274,34 +289,34 @@
 				// Validate the arguments!
 				if (_isNodeDefined) {
 					if (!(root instanceof window.Node)) {
-						throw new TypeError("`root` is not a valid `Node` object");
+						throw new TypeError('`root` is not a valid `Node` object');
 					}
 				}
 				else if (!root.nodeType) {
-					throw new TypeError("`root` is not a valid `Node` object");
+					throw new TypeError('`root` is not a valid `Node` object');
 				}
 
 				if (!jWalker$Lang.isArray(whatToShow)) {
-					throw new TypeError("`whatToShow` is not an array");
+					throw new TypeError('`whatToShow` is not an array');
 				}
 				else if (whatToShow.length <= 0) {
-					throw new TypeError("`whatToShow` is an empty array");
+					throw new TypeError('`whatToShow` is an empty array');
 				}
 				// Verify all the values are valid
 				for (filterCount = 0, len = whatToShow.length; filterCount < len; filterCount++) {
 					valueToVerify = whatToShow[filterCount];
 					if (jWalker$Lang.getEnumName(NodeTypeFilter, valueToVerify) === null) {
-						throw new TypeError("`whatToShow` contains invalid value at index " + filterCount + ": " + valueToVerify);
+						throw new TypeError('`whatToShow` contains invalid value at index ' + filterCount + ': ' + valueToVerify);
 					}
 				}
 
-				if (!(typeofFilter === "undefined" || filter === null || typeofFilter === "function" ||
-					(typeofFilter === "object" && typeof filter.acceptNode === "function"))) {
-					throw new TypeError("`filter` is not a valid `NodeFilter` function or object");
+				if (!(typeofFilter === 'undefined' || filter === null || typeofFilter === 'function' ||
+					(typeofFilter === 'object' && typeof filter.acceptNode === 'function'))) {
+					throw new TypeError('`filter` is not a valid `NodeFilter` function or object');
 				}
 
-				if (typeofEER !== "undefined" && expandEntityReferences !== null && typeofEER !== "boolean") {
-					throw new TypeError("`expandEntityReferences` is not a Boolean primitive");
+				if (typeofEER !== 'undefined' && expandEntityReferences !== null && typeofEER !== 'boolean') {
+					throw new TypeError('`expandEntityReferences` is not a Boolean primitive');
 				}
 
 
@@ -368,9 +383,9 @@
 					// This object is meant to circumnavigate the dumb browsers (IE9, and older versions of Safari and Chrome)
 					// that expect the filter to not be an object that contains a method, and instead the method itself.
 					// Well, this is both.  It's perhaps not compliant with the W3C spec in the end call (type function rather
-					// than type object), but it works whether the browser calls "filter()" or "filter.acceptNode()".
+					// than type object), but it works whether the browser calls `filter()` or `filter.acceptNode()`.
 					_safeFilter = this.filter;
-					if (this.filter && typeof this.filter.acceptNode === "function") {
+					if (this.filter && typeof this.filter.acceptNode === 'function') {
 						_safeFilter = this.filter.acceptNode;
 						_safeFilter.acceptNode = this.filter.acceptNode;
 					}
@@ -390,7 +405,7 @@
 								jWalker$Lang.arrayIndexOf(this.whatToShow, nodeTypeFilter) !== -1)
 							{
 								// If it made it past the nodeType filtering, run it through the user's acceptNode filter, if provided
-								if (this.filter && typeof this.filter.acceptNode === "function") {
+								if (this.filter && typeof this.filter.acceptNode === 'function') {
 									return this.filter.acceptNode(node);
 								}
 								return NodeFilter.FILTER_ACCEPT;
@@ -413,7 +428,7 @@
 				*/
 				this.parentNode = function jWalker$TreeWalker$parentNode() {
 					if (this.currentNode !== this.root) {
-						if (_nativeWalker && typeof _nativeWalker.parentNode === "function") {
+						if (_nativeWalker && typeof _nativeWalker.parentNode === 'function') {
 							_nativeWalker.currentNode = this.currentNode;
 							var node = _nativeWalker.parentNode();
 							this.currentNode = _nativeWalker.currentNode;
@@ -447,7 +462,7 @@
 				* @returns {Node} The new node, or null if the current node has no children in the TreeWalker's logical view.
 				*/
 				this.firstChild = function jWalker$TreeWalker$firstChild() {
-					if (_nativeWalker && typeof _nativeWalker.firstChild === "function") {
+					if (_nativeWalker && typeof _nativeWalker.firstChild === 'function') {
 						_nativeWalker.currentNode = this.currentNode;
 						var node = _nativeWalker.firstChild();
 						this.currentNode = _nativeWalker.currentNode;
@@ -489,7 +504,7 @@
 				this.lastChild = function jWalker$TreeWalker$lastChild() {
 					/*jshint noempty:false */
 					
-					if (_nativeWalker && typeof _nativeWalker.lastChild === "function") {
+					if (_nativeWalker && typeof _nativeWalker.lastChild === 'function') {
 						_nativeWalker.currentNode = this.currentNode;
 						var node = _nativeWalker.lastChild();
 						this.currentNode = _nativeWalker.currentNode;
@@ -535,7 +550,7 @@
 				*/
 				this.previousSibling = function jWalker$TreeWalker$previousSibling() {
 					if (this.currentNode !== this.root) {
-						if (_nativeWalker && typeof _nativeWalker.previousSibling === "function") {
+						if (_nativeWalker && typeof _nativeWalker.previousSibling === 'function') {
 							_nativeWalker.currentNode = this.currentNode;
 							var node = _nativeWalker.previousSibling();
 							this.currentNode = _nativeWalker.currentNode;
@@ -574,7 +589,7 @@
 				*/
 				this.nextSibling = function jWalker$TreeWalker$nextSibling() {
 					if (this.currentNode !== this.root) {
-						if (_nativeWalker && typeof _nativeWalker.nextSibling === "function") {
+						if (_nativeWalker && typeof _nativeWalker.nextSibling === 'function') {
 							_nativeWalker.currentNode = this.currentNode;
 							var node = _nativeWalker.nextSibling();
 							this.currentNode = _nativeWalker.currentNode;
@@ -614,7 +629,7 @@
 				*/
 				this.previousNode = function jWalker$TreeWalker$previousNode() {
 					if (this.currentNode !== this.root) {
-						if (_nativeWalker && typeof _nativeWalker.previousNode === "function") {
+						if (_nativeWalker && typeof _nativeWalker.previousNode === 'function') {
 							_nativeWalker.currentNode = this.currentNode;
 							var node = _nativeWalker.previousNode();
 							this.currentNode = _nativeWalker.currentNode;
@@ -666,7 +681,7 @@
 				* @returns {Node} The new node, or null if the current node has no next node in the TreeWalker's logical view.
 				*/
 				this.nextNode = function jWalker$TreeWalker$nextNode() {
-					if (_nativeWalker && typeof _nativeWalker.nextNode === "function") {
+					if (_nativeWalker && typeof _nativeWalker.nextNode === 'function') {
 						_nativeWalker.currentNode = this.currentNode;
 						var node = _nativeWalker.nextNode();
 						this.currentNode = _nativeWalker.currentNode;
@@ -721,7 +736,7 @@
 			*/
 			isTreeWalkerSupportedNatively: function jWalker$isTreeWalkerSupportedNatively() {
 				// The following feature detection checks are approximately equivalent to, but more reliable than:
-				//    `document.implementation.hasFeature("Traversal", "2.0")`
+				//	`document.implementation.hasFeature('Traversal', '2.0')`
 				return (_isCreateTreeWalkerDefined && _isNodeFilterDefined);
 			},
 
@@ -729,6 +744,7 @@
 			* Use jWalker to provide the underlying implementation for the native API members defined by the browser.
 			* Note that this will ONLY execute if TreeWalker is not natively supported already.
 			* BUYER BEWARE!
+			* @static
 			*/
 			createMissingNativeApi: function jWalker$createMissingNativeApi() {
 				if (!jWalker.isTreeWalkerSupportedNatively()) {
@@ -748,7 +764,7 @@
 							v,
 							len;
 
-						if (typeof w === "number") {
+						if (typeof w === 'number') {
 							if (w === NodeTypeFilter.SHOW_ALL) {
 								_whatToShow.push(NodeTypeFilter.SHOW_ALL);
 							}
@@ -780,9 +796,54 @@
 						return new jWalker.TreeWalker(root, _whatToShow, filter, !!expandEntityReferences);
 					};
 				}
+			},
+			
+			/**
+			* Reverts the global 'jWalker' variable to its previous value and returns a reference to the `jWalker` internal object.
+			* @static
+			* @returns {Object} Returns the `jWalker` object.
+			* @example
+			* var jWalkerLocal = jWalker.noConflict();
+			*/
+			noConflict: function jWalker$noConflict() {
+				window.jWalker = jWalkerOrig;
+				return jWalker;
 			}
 		};
+	
+	/*--------------------------------------------------------------------------*/
+
+	// Expose jWalker
+	// Some AMD build optimizers, like r.js, check for specific condition patterns like the following:
+	if (typeof define === 'function' && typeof define.amd === 'object' && define.amd) {
+		// Expose jWalker to the global object even when an AMD loader is present in case jWalker was injected by
+		// a third-party script and not intended to be loaded as a module. The global assignment can be reverted
+		// in the jWalker module via its `noConflict()` method.
+		window[exportName] = jWalker;
+
+		// Define as an anonymous module so, through path mapping, it can be referenced by any module name
+		define(function jWalker$define() {
+			return jWalker;
+		});
+	}
+	// Check for `exports` after `define` in case a build optimizer adds an `exports` object
+	else if (freeExports) {
+		// In Node.js or RingoJS v0.8.0+
+		if (typeof module === 'object' && module && module.exports === freeExports) {
+			module.exports = jWalker;
+			// Optional:
+			module.exports[exportName] = jWalker;
+		}
+		// In Narwhal or RingoJS v0.7.0-
+		else {
+			freeExports[exportName] = jWalker;
+		}
+	}
+	else {
+		// In a browser or Rhino
+		window[exportName] = jWalker;
+	}
 
 	// Expose jWalker to the global object
-	return (window.jWalker = jWalker);
+	return jWalker;
 })(this);

@@ -1,7 +1,11 @@
 language: node_js
 node_js:
-  - 0.7
+  - "0.10"
+before_install:
+  - npm update -g npm
 before_script:
   - phantomjs --version
 script:
   - phantomjs --local-to-remote-url-access=yes test/lib/phantom-mocha.js test/index.html
+
+sudo: false

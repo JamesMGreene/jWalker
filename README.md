@@ -1,5 +1,5 @@
 # jWalker
-[![Build Status](https://secure.travis-ci.org/JamesMGreene/jWalker.png)](http://travis-ci.org/JamesMGreene/jWalker)
+[![Build Status](https://secure.travis-ci.org/JamesMGreene/jWalker.png?branch=master)](http://travis-ci.org/JamesMGreene/jWalker)
 
 jWalker provides a well-tested, cross-browser JavaScript implementation of the [TreeWalker][2] class defined in
 the [W3C specification for DOM Traversal (DOM Level 2)][1].
